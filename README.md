@@ -146,13 +146,45 @@ These skills were created from scratch during the development of Evolving Coder:
 
 ## 📦 Installation
 
-### 1. Clone
+### 1. Install OpenCode CLI
+
+The OpenCode CLI is free and open-source. Install it globally:
+
+```bash
+npm install -g opencode-ai
+```
+
+Verify the installation:
+
+```bash
+opencode --version
+```
+
+**Alternative methods:**
+- **macOS/Linux:** `curl -sL opencode.ai/install | bash`
+- **Windows (winget):** `winget install --id SST.opencode -e`
+- **macOS (Homebrew):** `brew install opencode`
+
+### 2. Install the VS Code Extension
+
+1. Open VS Code
+2. Open the integrated terminal (`` Ctrl+` ``)
+3. Run `opencode` — the extension installs automatically
+
+**Or install manually:**
+- Open VS Code Extension Marketplace (`Ctrl+Shift+X`)
+- Search for **"OpenCode"** (publisher: **SST**)
+- Click **Install**
+
+> **Note:** The extension requires the OpenCode CLI to be installed first.
+
+### 3. Clone This Skill
 
 ```bash
 git clone https://github.com/ClovisChProgrammer/evolving-coder-public.git ~/.config/opencode/skills/evolving-coder
 ```
 
-### 2. Load
+### 4. Load the Skill
 
 In any OpenCode session, use the `skill` tool:
 
@@ -160,7 +192,7 @@ In any OpenCode session, use the `skill` tool:
 skill("evolving-coder")
 ```
 
-### 3. Use
+### 5. Start Using
 
 Just start talking. The AI will:
 
