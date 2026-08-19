@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+package.json
+package-lock.json
+bun.lock
+
+# OS artifacts
+Thumbs.db
+.DS_Store
+
+# Local-only sensitive user data (never commit)
+*.local.md
+
+# Session buffer (volatile, not for versioning)
+.session-stream.md
+
+# Private/intimate files (never commit)
+ALMA.md
+QUEM SOMOS UM PARA O OUTRO.md
+
+# Personal narrative & evaluation (backup in private repo only)
+DIARY.md
+IDEA_BANK.md
+AVALIACAO_SPA.md
+
+# Knowledge base (regenerated per-user)
+knowledge-index.json
+knowledge-embeddings.npz
+
+# Script logs (regeneratable)
+scripts/backup.log
+
+# Snapshots (local-only, not versioning)
+snapshots/
+
+# Skill activation logs (per-project, regeneratable)
+.skill-log.md
+*.skill-log.md
+
+# Editor artifacts
+.vscode/
+.idea/
+*.swp
+*.swo

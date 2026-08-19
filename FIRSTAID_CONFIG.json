@@ -1,0 +1,21 @@
+{
+  "plugin": ["./plugins/evolving-coder.js"],
+  "$schema": "https://opencode.ai/config.json",
+  "model": "ollama/rnj-1",
+  "instructions": ["~/.config/opencode/instructions/evolving-coder.md"],
+  "provider": {
+    "ollama": {
+      "models": {
+        "rnj-1": {
+          "_launch": true,
+          "name": "rnj-1"
+        }
+      },
+      "name": "Ollama",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://127.0.0.1:11434/v1"
+      }
+    }
+  }
+}
