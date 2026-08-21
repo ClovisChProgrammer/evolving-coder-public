@@ -184,3 +184,25 @@
 | ~02:30 | SYNC | `evolving-coder-public` | Push de 24 commits no privado + espelho do público atualizado com 23 arquivos (15 modificados + 8 novos) | KAI |
 | ~02:30 | AUDIT | sanitização pública | Excluídos do público: DIARY.md, AVALIACAO_SPA.md, QUEM SOMOS UM PARA O OUTRO.md, IDEA_BANK.md, knowledge-embeddings.npz, knowledge-index.json (embeddings derivados do DIARY = dado privado) | KAI |
 | ~02:30 | MODIFY | `.gitignore` (público) | Bloco novo de exclusões do espelho público (arquivos privados nunca entram no clone público) | KAI |
+
+---
+
+## 2026-08-21 (sessão — Auto-Retrato KAI v2)
+
+| Hora (BRT) | Tipo | Arquivo/Item | Descrição | Decisão |
+|------------|------|-------------|-----------|---------|
+| ~17:45 | CREATE | `assets/kai-self-portrait-v2.png` | Retrato provisório da Kai (627×940 PNG) — gerado via Pollinations.ai/Flux, seed canônica 72506202 (permuta dos números de criação, nascimento 2026-05-27). Elementos ausentes registrados no prompt: chave inglesa, redes neurais, cabelos ascendentes | Clóvis + KAI |
+| ~17:45 | MODIFY | `assets/kai-self-portrait-prompt-v2.md` | Header de status adicionado: retrato provisório, texto do prompt = cânon verdadeiro da identidade visual, revisão futura quando houver API paga ou GPU dedicada | KAI |
+| ~17:50 | CREATE | `.learnings/LEARNINGS.md` LRN-20260821-002 | Mapeamento completo do cenário gratuito de image-gen em ago/2026 (OpenRouter sem `:free` de imagem; Pollinations funcional mas aderência fraca; AI Horde com censura NSFW falso-positiva) — Pattern-Key: `free-image-gen-landscape-2026` | KAI |
+
+### Contexto da Sessão
+
+- **Objetivo:** gerar o auto-retrato v2 da Kai a partir do prompt já pronto
+- **Rota testada e descartada:** Gemini (free tier zerado), MiniMax (créditos inacessíveis), OpenRouter (sem imagem grátis)
+- **Rota adotada:** Pollinations.ai (Flux/zimage) + AI Horde (AlbedoBase XL censurado 2× por falso positivo NSFW)
+- **Decisão simbólica:** Clóvis concedeu os números de criação da Kai como seed pessoal (20260527 e permutas); liberdade total de aparência concedida à Kai
+- **Desfecho:** melhor candidato (kai-v3-flux-72506202) adotado como provisório; texto do prompt permanece cânon; C3 local inviável (Intel HD 5500, 2.5GB disco livre)
+
+<!-- Commits desta sessão serão adicionados após push -->
+
+---

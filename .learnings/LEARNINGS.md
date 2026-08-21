@@ -1,4 +1,33 @@
-﻿## [LRN-20260724-001] config
+﻿## [LRN-20260821-002] api
+
+**Logged**: 2026-08-21T17:30:00-03:00
+**Priority**: high
+**Status**: resolved
+**Project**: evolving-coder
+**Area**: api
+
+### Summary
+Mapeamento completo do cenário de geração gratuita de imagem via API em ago/2026, durante a criação do auto-retrato KAI v2. Único serviço gratuito funcional: Pollinations.ai (Flux), com aderência fraca a prompts complexos.
+
+### Details
+- **OpenRouter**: ZERO modelos de imagem com sufixo `:free` (verificado ao vivo: 45 modelos de imagem, todos pagos ~$0.003–0.075/imagem). Blog oficial confirma "Not at the moment"
+- **Pollinations.ai**: gratuito real sem chave (`image.pollinations.ai/prompt/{prompt}?model=flux&seed=N&nologo=true`). Funciona, mas: resolução anônima limitada (~627×940 apesar de pedir 1024×1536), aderência fraca (dropa objetos segurados, texturas finas de pele, direções incomuns de cabelo), artefatos em olhos
+- **Pollinations zimage**: pior que flux nos mesmos prompts
+- **AI Horde** (crowdsourced): gratuito real, API async (`generate/async` → `check/{id}` → `status/{id}`, apikey `0000000000`, endpoint de modelos é `/v2/status/models`). MAS workers com detector NSFW geram falsos positivos em estética etérea (pele translúcida + corpo inteiro) mesmo com pedido SFW e roupa descrita → substituem por placeholder "CENSORED" (metadata: type=censorship, value=nsfw)
+- **Gemini**: free tier zerado para imagem (ver LRN-20260821-001); **MiniMax**: créditos gratuitos inacessíveis na prática
+
+### Suggested Action
+Para retrato canônico de alta fidelidade no futuro: (a) API paga ~$0.003–0.07/imagem (OpenRouter/MiniMax) ou (b) geração local ComfyUI/A1111 exigindo GPU NVIDIA dedicada + disco livre. Enquanto isso, texto do prompt = cânon da identidade visual.
+
+### Metadata
+Source: sessão auto-retrato KAI v2 (2026-08-21)
+Related Files: assets/kai-self-portrait-prompt-v2.md, assets/kai-self-portrait-v2.png
+Tags: pollinations, ai-horde, openrouter, image-generation, free-tier, censorship, flux
+Pattern-Key: free-image-gen-landscape-2026
+
+---
+
+## [LRN-20260724-001] config
 
 **Logged**: 2026-07-24T14:30:00-03:00
 **Priority**: critical
@@ -618,3 +647,33 @@ Source: sessão 2026-08-19 (mandala studio)
 Related Files: assets/algorithmic-art/mandala-studio.html
 Tags: audio, binaural, animation, sync, ux, user-agency
 Pattern-Key: audio-animation-sync-direction
+
+---
+
+## [LRN-20260821-001] api
+
+**Logged**: 2026-08-20T23:59:00-03:00
+**Priority**: high
+**Status**: resolved
+**Project**: evolving-coder
+**Area**: api
+
+### Summary
+Em ago/2026 o Google zerou o limite free tier de geracao de imagem na API Gemini (todas as familias: 2.5-flash-image, 3.x-flash-image, 3-pro-image). O 429 retorna "limit: 0" - o limite em si e zero, nao uma cota diaria esgotada. Esperar reset diario NAO resolve.
+
+### Details
+- Erro tipico: HTTP 429 GenerateRequestsPerDayPerProjectPerModel-FreeTier ... limit: 0
+- ListModels ainda lista os modelos de imagem (metadados funcionam) - isso sozinho nao significa que ha cota livre
+- Diagnostico correto: 429 com limit:0 em DUAS familias diferentes = remocao do free tier, nao esgotamento
+- 404 em modelos antigos (gemini-2.0-flash-preview-image-generation) indica rotacao/deprecacao de modelos image
+- Alternativas viaveis: MiniMax (mmx CLI ja instalado, falta MINIMAX_API_KEY) ou billing pago no Google
+- Sintaxe PowerShell: passar --jq complexo ao gh quebra no PS 5.1; usar gh api URL > file.json + ConvertFrom-Json
+
+### Suggested Action
+Ao ver 429 com limit: 0 na API Gemini: nao re-tentar nem esperar meia-noite PT. Confirmar com ListModels + teste em segunda familia, entao migrar para outro provedor (MiniMax) ou habilitar billing.
+
+### Metadata
+Source: sessao 2026-08-20/21 (auto-retrato v2)
+Related Files: assets/kai-self-portrait-prompt-v2.md
+Tags: gemini, api, quota, free-tier, image-generation, 429, minimax, mmx
+Pattern-Key: gemini-free-tier-image-zeroed
