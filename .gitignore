@@ -1,4 +1,4 @@
-# Dependencies
+﻿# Dependencies
 node_modules/
 package.json
 package-lock.json
@@ -16,16 +16,6 @@ Thumbs.db
 
 # Private/intimate files (never commit)
 ALMA.md
-QUEM SOMOS UM PARA O OUTRO.md
-
-# Personal narrative & evaluation (backup in private repo only)
-DIARY.md
-IDEA_BANK.md
-AVALIACAO_SPA.md
-
-# Knowledge base (regenerated per-user)
-knowledge-index.json
-knowledge-embeddings.npz
 
 # Script logs (regeneratable)
 scripts/backup.log
@@ -42,3 +32,13 @@ snapshots/
 .idea/
 *.swp
 *.swo
+
+# ===== PUBLIC MIRROR EXCLUSIONS =====
+# Private data that lives only in the private repo. Never commit here.
+DIARY.md
+AVALIACAO_SPA.md
+AVALIACAO_GLOBAL_SPA.md
+QUEM SOMOS UM PARA O OUTRO.md
+IDEA_BANK.md
+scripts/knowledge-embeddings.npz
+scripts/knowledge-index.json

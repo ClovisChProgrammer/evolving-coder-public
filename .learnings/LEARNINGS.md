@@ -85,7 +85,7 @@ Análise NC da skill self-learning-skills (kulaxyz, 912 stars). Decisão: não i
 Reavaliar instalação completa quando: (1) pipeline de extração for usado pela 1a vez, (2) projetos longos acumularem golden paths, (3) OpenCode suportar hooks nativos (UserPromptSubmit/PostToolUse).
 
 ### Metadata
-Source: sessão NC com the developer 2026-07-25
+Source: sessão NC com Clóvis 2026-07-25
 Related Files: SKILL.md, AGENTS.md, global-rules.md, CHANGES.md
 Tags: self-learning, nc-protocol, deferral, anti-secrets, meta-decision
 Pattern-Key: selective-method-integration
@@ -134,11 +134,11 @@ Pattern-Key: selective-method-integration
 **Logged**: 2026-08-03T16:56:00-03:00
 **Priority**: medium
 **Status**: resolved
-**Project**: project-example-1
+**Project**: inpi-marcas-patentes
 **Area**: testing
 
 ### Summary
-Pytest na raiz do projeto project-example-1 coleta `backend/tests/` e falha com `ModuleNotFoundError: No module named 'app.db'` porque o package backend só resolve quando executado de dentro de `backend/`. O CI espelha isso (working-directory por job).
+Pytest na raiz do projeto inpi-marcas-patentes coleta `backend/tests/` e falha com `ModuleNotFoundError: No module named 'app.db'` porque o package backend só resolve quando executado de dentro de `backend/`. O CI espelha isso (working-directory por job).
 
 ### Details
 - `python -m pytest -q` na raiz → ERROR de coleção em `backend/tests/conftest.py`
@@ -167,7 +167,7 @@ Pattern-Key: per-directory-test-validation
 **Area**: ops
 
 ### Summary
-Sessão de 2026-08-03 (project-example-1) crashou antes do FLUSH-final: buffer `.session-stream.md` ficou em estado cru, disparando healthcheck CRITICAL. Recovery manual resolvido; o gap real era o protocolo de inicialização não executar crash recovery automaticamente.
+Sessão de 2026-08-03 (inpi-marcas-patentes) crashou antes do FLUSH-final: buffer `.session-stream.md` ficou em estado cru, disparando healthcheck CRITICAL. Recovery manual resolvido; o gap real era o protocolo de inicialização não executar crash recovery automaticamente.
 
 ### Details
 - Buffer cru continha a última interação da sessão anterior (1 linha), sem marcação `# FLUSHING`/`# FLUSHED`
@@ -191,7 +191,7 @@ Pattern-Key: startup-crash-recovery
 **Logged**: 2026-08-05T17:28:00-03:00
 **Priority**: high
 **Status**: pending_review
-**Project**: project-example-1
+**Project**: inpi-marcas-patentes
 **Area**: ops
 
 ### Summary
@@ -219,7 +219,7 @@ Pattern-Key: url-access-fallback
 **Logged**: 2026-08-05T17:28:00-03:00
 **Priority**: medium
 **Status**: pending_review
-**Project**: project-example-1
+**Project**: inpi-marcas-patentes
 **Area**: tests
 
 ### Summary
@@ -247,7 +247,7 @@ Pattern-Key: html-extraction-anchor-regex
 **Logged**: 2026-08-05T17:28:00-03:00
 **Priority**: medium
 **Status**: pending_review
-**Project**: project-example-1
+**Project**: inpi-marcas-patentes
 **Area**: ops
 
 ### Summary
@@ -274,11 +274,11 @@ Pattern-Key: windows-exe-file-lock
 **Logged**: 2026-08-06T20:10:00-03:00
 **Priority**: critical
 **Status**: pending_review
-**Project**: project-example-2
+**Project**: memoagenda
 **Area**: config
 
 ### Summary
-Em projetos Android/Gradle no Windows com path não-ASCII (ex.: `G:\\MyProject`), o AGP corrompe o path para mojibake (`Extensǜo`) no `build_model.json` e o build nativo CMake/jni falha com "Expected output file at ... but there was none" mesmo com o `.so` gerado. Causa raiz: **JDK 17 decodifica paths com cp1252**. Fix definitivo no `android/gradle.properties`:
+Em projetos Android/Gradle no Windows com path não-ASCII (ex.: `G:\Extensão`), o AGP corrompe o path para mojibake (`Extensǜo`) no `build_model.json` e o build nativo CMake/jni falha com "Expected output file at ... but there was none" mesmo com o `.so` gerado. Causa raiz: **JDK 17 decodifica paths com cp1252**. Fix definitivo no `android/gradle.properties`:
 
 ```
 org.gradle.jvmargs=... -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8
@@ -296,8 +296,8 @@ systemProp.sun.jnu.encoding=UTF-8
 **Sempre que um build Android/Gradle falhar com "Expected output file ... but there was none" ou paths mojibake (`Extensǜo`)**: forçar UTF-8 no daemon (`file.encoding` + `sun.jnu.encoding` nos jvmargs E como systemProp) antes de qualquer outra investigação. Isso é o fix de causa raiz; `overridePathCheck` e `kotlin.incremental=false` são paliativos complementares. Aplicável a QUALQUER projeto Java/Gradle no Windows com path não-ASCII.
 
 ### Metadata
-Source: build APK project-example-2 2026-08-06
-Related Files: android/gradle.properties, android/app/build.gradle.kts, AGENTS.md (project-example-2)
+Source: build APK MemoAgenda 2026-08-06
+Related Files: android/gradle.properties, android/app/build.gradle.kts, AGENTS.md (MemoAgenda)
 Tags: gradle, agp, non-ascii-path, utf-8, cmake, jni, mojibake, windows
 Pattern-Key: gradle-utf8-nonascii-path
 
@@ -308,7 +308,7 @@ Pattern-Key: gradle-utf8-nonascii-path
 **Logged**: 2026-08-06T20:10:00-03:00
 **Priority**: high
 **Status**: pending_review
-**Project**: project-example-2
+**Project**: memoagenda
 **Area**: integration
 
 ### Summary
@@ -324,7 +324,7 @@ O `flutter_local_notifications` v22 mudou a API para **named parameters** e o `f
 Ao usar flutter_local_notifications v22+: consultar a assinatura real das APIs (named params) em vez de confiar na v19/v21. Sempre ativar desugaring ANTES de integrar o plugin. flutter_timezone: tratar `TimezoneInfo`, não String.
 
 ### Metadata
-Source: análise + fix project-example-2 2026-08-06
+Source: análise + fix MemoAgenda 2026-08-06
 Related Files: lib/core/notifications/notification_service.dart, android/app/build.gradle.kts, pubspec.yaml
 Tags: flutter, flutter-local-notifications, v22, breaking-change, desugaring, timezone, named-parameters
 Pattern-Key: fln-v22-api-desugaring
@@ -336,11 +336,11 @@ Pattern-Key: fln-v22-api-desugaring
 **Logged**: 2026-08-06T20:10:00-03:00
 **Priority**: high
 **Status**: pending_review
-**Project**: project-example-2
+**Project**: memoagenda
 **Area**: ops
 
 ### Summary
-Kit de sobrevivência para Flutter em path não-ASCII no Windows (`G:\\MyProject`): compilação Kotlin falha sem `kotlin.incremental=false`; AGP bloqueia path não-ASCII sem `android.overridePathCheck=true`; `flutter analyze` crasha (LSP FormatException) → usar `dart analyze`; `build_runner` precisa de `--force-jit` (AOT do Dart falha no path acentuado).
+Kit de sobrevivência para Flutter em path não-ASCII no Windows (`G:\Extensão`): compilação Kotlin falha sem `kotlin.incremental=false`; AGP bloqueia path não-ASCII sem `android.overridePathCheck=true`; `flutter analyze` crasha (LSP FormatException) → usar `dart analyze`; `build_runner` precisa de `--force-jit` (AOT do Dart falha no path acentuado).
 
 ### Details
 - O path acentuado quebra 4 toolchains diferentes (AGP, Kotlin, Dart AOT, Dart LSP) de formas distintas — documentar tudo em AGENTS.md do projeto é obrigatório
@@ -351,8 +351,8 @@ Kit de sobrevivência para Flutter em path não-ASCII no Windows (`G:\\MyProject
 Ao trabalhar em qualquer projeto Flutter sob path não-ASCII no Windows: registrar no AGENTS.md do projeto os 4 workarounds (overridePathCheck, kotlin.incremental=false, --force-jit, dart analyze). Evitar `flutter analyze` (crasha). NÃO remover as linhas de gradle.properties já corrigidas.
 
 ### Metadata
-Source: sessão project-example-2 2026-08-06
-Related Files: AGENTS.md (project-example-2), android/gradle.properties
+Source: sessão MemoAgenda 2026-08-06
+Related Files: AGENTS.md (MemoAgenda), android/gradle.properties
 Tags: flutter, non-ascii-path, build_runner, force-jit, dart-analyze, windows, kotlin
 Pattern-Key: flutter-nonascii-path-survival-kit
 
@@ -363,7 +363,7 @@ Pattern-Key: flutter-nonascii-path-survival-kit
 **Logged**: 2026-08-15T12:50:00-03:00
 **Priority**: high
 **Status**: resolved
-**Project**: project-example-3
+**Project**: rf-readfast
 **Area**: extension
 
 ### Summary
@@ -380,7 +380,7 @@ Páginas PDF da Biblioteca Virtual Pearson são renderizadas como `<img>` (sem t
 Ao integrar com a BV Pearson: usar interceptação de rede no mundo MAIN, nunca scrape do DOM. Reutilizar o cache `chrome.storage.local` (`rf_pg_<id>_<pag>`) para evitar refetch. Não usar `chrome.storage.session` de content script (access level não permite).
 
 ### Metadata
-Source: sessão project-example-3 2026-08-15
+Source: sessão RF-ReadFast 2026-08-15
 Related Files: content/inject-main.js, content/bv-main.js
 Tags: chrome-extension, mv3, bvirtual, interceptacao, rsvp, pageText
 Pattern-Key: bvirtual-pageextraction-via-api
@@ -392,7 +392,7 @@ Pattern-Key: bvirtual-pageextraction-via-api
 **Logged**: 2026-08-15T12:55:00-03:00
 **Priority**: high
 **Status**: resolved
-**Project**: project-example-3
+**Project**: rf-readfast
 **Area**: extension
 
 ### Summary
@@ -409,7 +409,7 @@ Motor RSVP/Spritz v1 validado em node (sem build toolchain): ORP `min(len-1, max
 Sempre testar o motor em node antes de carregar no Chrome. Caminho `E:\Extensão\` (acento) não afeta JS puro/Chrome — problema de path não-ASCII é específico de toolchains Java/Dart.
 
 ### Metadata
-Source: sessão project-example-3 2026-08-15
+Source: sessão RF-ReadFast 2026-08-15
 Related Files: rsvp/engine.js, rsvp/ui.js
 Tags: rsvp, spritz, orp, tokenizacao, node-check, mv3
 Pattern-Key: rsvp-engine-node-testable
@@ -421,7 +421,7 @@ Pattern-Key: rsvp-engine-node-testable
 **Logged**: 2026-08-15T13:00:00-03:00
 **Priority**: medium
 **Status**: pending_review
-**Project**: project-example-3
+**Project**: rf-readfast
 **Area**: ops
 
 ### Summary
@@ -437,7 +437,7 @@ Auto-avanço entre páginas do leitor Pearson precisa de anti-loop rígido: dete
 Em campo: confirmar se `aria-label` dos botões de navegação e o seletor de página (range) correspondem ao leitor real; se divergirem, refinar `findNavButton`/`detectCurrentPage`.
 
 ### Metadata
-Source: sessão project-example-3 2026-08-15
+Source: sessão RF-ReadFast 2026-08-15
 Related Files: content/bv-main.js
 Tags: auto-advance, anti-loop, watchdog, aria-label, bvirtual
 Pattern-Key: reader-autoadvance-anti-loop
@@ -449,7 +449,7 @@ Pattern-Key: reader-autoadvance-anti-loop
 **Logged**: 2026-08-15T15:10:00-03:00
 **Priority**: high
 **Status**: resolved
-**Project**: project-example-3
+**Project**: rf-readfast
 **Area**: extension
 
 ### Summary
@@ -479,7 +479,7 @@ Pattern-Key: iframe-spa-frame-agnostic-content-script
 **Logged**: 2026-08-15T17:20:00-03:00
 **Priority**: critical
 **Status**: resolved
-**Project**: project-example-3
+**Project**: rf-readfast
 **Area**: extension
 
 ### Summary
@@ -501,5 +501,120 @@ Related Files: background/service.js, content/bv-main.js, content/inject-main.js
 Tags: mv3, isolated-world, main-world, frameId, webNavigation, custom-event, diagnostics, vitalsource
 Pattern-Key: mv3-world-isolation-and-frame-routing
 
+---
 
+## [LRN-20260819-001] config
 
+**Logged**: 2026-08-19T13:25:00-03:00
+**Priority**: high
+**Status**: resolved
+**Project**: evolving-coder
+**Area**: config
+
+### Summary
+Arquivo `.env` criado pelo PowerShell com `Out-File -Encoding utf8` inclui BOM (Byte Order Mark `\xEF\xBB\xBF`) silenciosamente. A chave `GOOGLE_API_KEY` é lida como `﻿GOOGLE_API_KEY` (com BOM) e não casa com a lista de variáveis válidas no módulo gemini.py — resultando em "GOOGLE_API_KEY not found" mesmo com a chave presente no arquivo.
+
+### Details
+- `Out-File -Encoding utf8` no PowerShell 5.1 gera UTF-8 COM BOM (diferente do PowerShell 7+)
+- O parser de `.env` do opencode-vision lê a linha `﻿GOOGLE_API_KEY=valor` e extrai key=`﻿GOOGLE_API_KEY` (com BOM)
+- A verificação `if k in API_KEY_ENV_VARS` falha porque `﻿GOOGLE_API_KEY` != `GOOGLE_API_KEY`
+- Fix: usar `[System.IO.File]::WriteAllText($path, $content, [System.Text.UTF8Encoding]::new($false))` para escrever sem BOM
+- Verificação: `$bytes[0..2] -ne 0xEF,0xBB,0xBF` ou `python -c "print(repr(open('.env','rb').read()[:10]))"`
+
+### Suggested Action
+Ao criar `.env` no Windows PowerShell: NUNCA usar `Out-File` ou `Set-Content -Encoding utf8` (ambos geram BOM). Usar sempre `[System.IO.File]::WriteAllText()` com `UTF8Encoding::new($false)`. Verificar BOM com leitura binária antes de entregar.
+
+### Metadata
+Source: instalação opencode-vision 2026-08-19
+Related Files: ~/.config/opencode/.env, opencode-vision/gemini.py
+Tags: bom, utf-8, powershell, env-file, api-key, encoding
+Pattern-Key: env-file-bom-powershell
+
+---
+
+## [LRN-20260819-002] config
+
+**Logged**: 2026-08-19T14:00:00-03:00
+**Priority**: medium
+**Status**: resolved
+**Project**: evolving-coder
+**Area**: config
+
+### Summary
+A quota free tier do Google Gemini API para geração de imagem é extremamente restritiva (limite 0 para requests diários em todos os modelos de imagem: gemini-2.5-flash-image, 3.1-flash-image, 3-pro-image). A quota é vinculada à conta Google Cloud, não à chave API individual — duas chaves do mesmo projeto compartilham a mesma quota.
+
+### Details
+- Testadas 2 chaves Google API: ambas com quota de imagem esgotada
+- Chaves funcionam normalmente para texto (gemini-3.6-flash OK)
+- Modelos de imagem testados: gemini-2.5-flash-image, gemini-3.1-flash-image, gemini-3-pro-image, gemini-3.1-flash-lite-image — todos 429 RESOURCE_EXHAUSTED
+- Erro detalhado: `GenerateRequestsPerDayPerProjectPerModel-FreeTier` com limite 0
+- A quota reseta diariamente (meia-noite PT)
+- Para geração de imagem imediata: MiniMax Token Plan (mmx-cli já instalado, pendente MINIMAX_API_KEY) ou habilitar billing no Google AI Studio
+
+### Suggested Action
+Para geração de imagem: (1) verificar quota antes de tentar — chamada de teste simples; (2) ter alternativa (MiniMax) como fallback; (3) considerar billing do Google para quota maior; (4) não gastar tokens testando modelos esgotados repetidamente.
+
+### Metadata
+Source: sessão 2026-08-19
+Related Files: ~/.config/opencode/.env, opencode-vision/gemini.py
+Tags: google, gemini, quota, free-tier, image-generation, rate-limit
+Pattern-Key: gemini-image-quota-free-tier
+
+---
+
+## [LRN-20260819-003] svg
+
+**Logged**: 2026-08-19T23:00:00-03:00
+**Priority**: high
+**Status**: resolved
+**Project**: evolving-coder
+**Area**: svg
+
+### Summary
+CSS `transform-origin` não funciona confiavelmente em elementos SVG cross-browser. Para animação rotacional de mandalas SVG, usar o atributo SVG `transform` com `translate(CX,CY) rotate(R) scale(S)` — a rotação acontece em coordenadas locais (0,0) antes da translação.
+
+### Details
+- CSS `transform: rotate(Xdeg)` no SVG funciona em Chrome mas falha em Firefox/Safari para centering
+- CSS `transform-origin: 50% 50%` no SVG é ignorado ou calculado diferente por browser
+- Solução robusta: `transform="translate(250,250) rotate(R) scale(S)"` no elemento SVG
+- Ordem importa: translate primeiro, depois rotate, depois scale
+- Para mandala com groups aninhados: group externo faz translate+rotate, grupos internos fazem rotate individual por anel
+- `clip-path: circle(R% at X% Y%)` DEVE usar `%` não `px` — pixel values quebram quando SVG renderiza em tamanho diferente do viewBox
+
+### Suggested Action
+Sempre usar SVG `transform` attribute para animação de elementos SVG. Nunca confiar em CSS transform para centering de SVG. Para clip-path em SVG, sempre usar unidades `%`.
+
+### Metadata
+Source: sessão 2026-08-19 (mandala studio)
+Related Files: assets/algorithmic-art/mandala-studio.html
+Tags: svg, css, transform, centering, clip-path, cross-browser, animation
+Pattern-Key: svg-transform-attribute-not-css
+
+---
+
+## [LRN-20260819-004] audio
+
+**Logged**: 2026-08-19T23:00:00-03:00
+**Priority**: medium
+**Status**: resolved
+**Project**: evolving-coder
+**Area**: audio
+
+### Summary
+Direção do sync entre animação e áudio binaural importa: o_usuário_ deve controlar a animação (velocidade de rotação), e a Hz binaural deve derivar disso. O inverso (Hz controla animação) é contra-intuitivo porque o usuário perde agência sobre o visual.
+
+### Details
+- Implementação original: slider `baseHz` controlava tanto a Hz binaural quanto a velocidade da animação
+- Problema: usuário quer controlar a rotação visualmente, não através de um slider de frequência
+- Solução correta: Hz = rotateSpeed × hzMult — o multiplicador (0.1-5.0x) é o único slider novo
+- Fórmula: 1.0x rot × 1.5 mult = 1.5 Hz (Theta), 3.0x × 2.0 = 6.0 Hz (Alpha)
+- Range útil: 0.5-15 Hz cobre Delta→Alpha (maioria dos estados de meditação)
+
+### Suggested Action
+Ao sincronizar áudio com animação, sempre perguntar: "O que o usuário quer controlar diretamente?" — isso deve ser o input primário. A另一个 coisa deve ser calculada, não o inverso.
+
+### Metadata
+Source: sessão 2026-08-19 (mandala studio)
+Related Files: assets/algorithmic-art/mandala-studio.html
+Tags: audio, binaural, animation, sync, ux, user-agency
+Pattern-Key: audio-animation-sync-direction

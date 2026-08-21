@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     KAI Health Check
 .DESCRIPTION
@@ -9,7 +9,7 @@
     Execucao: startup de toda sessao (integrado ao AGENTS.md)
 #>
 
-$repoPath = "$PSScriptRoot\.."
+$repoPath = "C:\Users\clovi\.config\opencode\skills\evolving-coder"
 Push-Location $repoPath
 
 $critical = @()
@@ -118,4 +118,3 @@ if ($critical.Count -gt 0) {
     exit 1
 }
 exit 0
-

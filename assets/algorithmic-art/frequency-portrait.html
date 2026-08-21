@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frequency Portrait — Deep Self-Discovery</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+:root{
+  --bg:#06060f;--s1:#0c0c1d;--s2:#12122a;--s3:#1a1a3a;
+  --a1:#7c6aef;--a2:#a78bfa;--a3:#c084fc;
+  --p1:#f472b6;--p2:#fb7185;
+  --g1:#34d399;--g2:#6ee7b7;
+  --txt:#e2e8f0;--dim:#64748b;--muted:#475569;
+  --glow:rgba(124,106,239,0.25);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);overflow-x:hidden}
+
+/* ── Particle Background ── */
+#particles{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ── Screens ── */
+.screen{position:relative;z-index:1;display:none;min-height:100vh;padding:40px 20px}
+.screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadeIn .8s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Welcome ── */
+#welcome{text-align:center;max-width:640px}
+#welcome h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(36px,6vw,64px);font-weight:700;
+  background:linear-gradient(135deg,var(--a1),var(--p1),var(--a3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px;line-height:1.1}
+#welcome .sub{color:var(--dim);font-size:17px;margin-bottom:48px;line-height:1.6}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:48px}
+.feat{background:var(--s1);border:1px solid var(--s3);border-radius:14px;padding:20px 14px;text-align:center}
+.feat .ic{font-size:28px;margin-bottom:8px}
+.feat h3{font-size:13px;font-weight:600;margin-bottom:4px}
+.feat p{font-size:11px;color:var(--dim);line-height:1.4}
+.big-btn{
+  background:linear-gradient(135deg,var(--a1),var(--p1));
+  color:#fff;border:none;padding:18px 56px;border-radius:14px;font-size:18px;font-weight:700;
+  cursor:pointer;transition:all .3s;font-family:'Space Grotesk',sans-serif;
+  box-shadow:0 4px 30px var(--glow);letter-spacing:.5px}
+.big-btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 8px 40px var(--glow)}
+.disclaimer{font-size:11px;color:var(--muted);margin-top:24px;max-width:440px;line-height:1.5}
+
+/* ── Baseline ── */
+#baseline{text-align:center;max-width:500px}
+.phase-label{font-size:12px;font-weight:600;color:var(--a2);text-transform:uppercase;letter-spacing:3px;margin-bottom:16px}
+.base-title{font-family:'Space Grotesk',sans-serif;font-size:28px;margin-bottom:8px}
+.base-sub{color:var(--dim);font-size:14px;margin-bottom:32px}
+.breathe-circle{
+  width:160px;height:160px;border-radius:50%;border:3px solid var(--a1);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 32px;
+  font-size:16px;font-weight:500;color:var(--a2);
+  transition:transform 4s ease-in-out,box-shadow 4s ease-in-out, border-color 4s ease-in-out}
+.breathe-circle.inhale{transform:scale(1.4);box-shadow:0 0 40px var(--glow);border-color:var(--g1)}
+.breathe-circle.hold{transform:scale(1.4);box-shadow:0 0 40px rgba(52,211,153,0.3);border-color:var(--g1)}
+.breathe-circle.exhale{transform:scale(1);box-shadow:none;border-color:var(--a1)}
+.base-timer{font-family:'Space Grotesk',sans-serif;font-size:48px;color:var(--a2);margin-bottom:8px}
+.base-hint{font-size:13px;color:var(--dim)}
+
+/* ── Test Screen ── */
+#test-screen{text-align:center;max-width:600px}
+.test-header{width:100%;margin-bottom:40px}
+.prog-bg{width:100%;height:4px;background:var(--s3);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--a1),var(--p1));border-radius:2px;transition:width .6s}
+.prog-txt{font-size:11px;color:var(--muted);margin-top:6px}
+.freq-display{margin-bottom:8px}
+.freq-num{font-family:'Space Grotesk',sans-serif;font-size:clamp(56px,10vw,96px);font-weight:700;
+  background:linear-gradient(135deg,var(--a1),var(--p1));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.freq-label{font-size:15px;color:var(--dim);margin-bottom:32px}
+
+/* Visualizer */
+#visualizer{width:100%;height:100px;margin-bottom:24px;border-radius:12px;background:var(--s1);overflow:hidden;position:relative}
+#viz-canvas{width:100%;height:100%;display:block}
+.viz-label{position:absolute;top:8px;left:12px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+
+/* Timer */
+.timer-wrap{position:relative;width:140px;height:140px;margin:0 auto 24px}
+.timer-wrap svg{width:100%;height:100%;transform:rotate(-90deg)}
+.timer-wrap circle{fill:none;stroke-width:3;cx:70;cy:70;r:64}
+.timer-wrap .tbg{stroke:var(--s3)}
+.timer-wrap .tfg{stroke:var(--a1);stroke-linecap:round;stroke-dasharray:402.1;transition:stroke-dashoffset 1s linear}
+.timer-val{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Space Grotesk',sans-serif;font-size:36px;font-weight:600}
+
+/* Breathing Guide */
+.breathe-mini{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:24px}
+.breathe-dot{width:8px;height:8px;border-radius:50%;background:var(--s3);transition:all 1s}
+.breathe-dot.active{background:var(--g1);box-shadow:0 0 12px rgba(52,211,153,0.5)}
+.breathe-txt{font-size:12px;color:var(--dim);min-width:80px}
+
+/* Multi-rating */
+.rating-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto}
+.rating-card{background:var(--s1);border:1px solid var(--s3);border-radius:12px;padding:14px;text-align:center;cursor:pointer;transition:all .2s}
+.rating-card:hover{border-color:var(--a1);transform:translateY(-2px)}
+.rating-card.selected{border-color:var(--a1);background:rgba(124,106,239,0.1)}
+.rating-card .rlabel{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.rating-card .rval{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:600}
+.rating-card .rbar{height:3px;background:var(--s3);border-radius:2px;margin-top:8px;overflow:hidden}
+.rating-card .rbar-fill{height:100%;border-radius:2px;transition:width .2s}
+
+/* ── Adaptive Indicator ── */
+.adaptive-info{font-size:11px;color:var(--muted);margin-bottom:16px;padding:8px 16px;background:var(--s1);border-radius:8px;display:inline-block}
+
+/* ── Results ── */
+#results{max-width:640px;text-align:center}
+#results h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,5vw,42px);margin-bottom:6px;
+  background:linear-gradient(135deg,var(--a1),var(--p1));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+#results .rsub{color:var(--dim);font-size:15px;margin-bottom:36px}
+.card{background:var(--s1);border:1px solid var(--s3);border-radius:16px;padding:24px;margin-bottom:20px;text-align:left}
+.card h3{font-size:15px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card h3::before{content:'';width:4px;height:16px;background:linear-gradient(var(--a1),var(--p1));border-radius:2px}
+
+/* Top Pick */
+.top-pick{background:linear-gradient(135deg,rgba(124,106,239,0.12),rgba(244,114,182,0.12));
+  border:1px solid var(--a1);border-radius:20px;padding:40px 24px;margin-bottom:24px;position:relative;overflow:hidden}
+.top-pick::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 30% 50%,rgba(124,106,239,0.08),transparent 60%);pointer-events:none}
+.tp-label{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:var(--a2);margin-bottom:8px}
+.tp-freq{font-family:'Space Grotesk',sans-serif;font-size:56px;font-weight:700;
+  background:linear-gradient(135deg,var(--a1),var(--p1));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tp-state{font-size:16px;color:var(--dim);margin-top:4px}
+.tp-desc{font-size:13px;color:var(--muted);margin-top:8px;max-width:400px;margin-left:auto;margin-right:auto;line-height:1.5}
+
+/* Spectrum */
+#spectrum-canvas{width:100%;height:120px;border-radius:8px}
+
+/* Recs */
+.rec{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--s3)}
+.rec:last-child{border:none}
+.rec-ic{font-size:20px;width:32px;text-align:center;flex-shrink:0}
+.rec-tx{font-size:13px;line-height:1.5}
+.rec-tx strong{color:var(--a2)}
+
+/* History */
+.hist-row{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--s3);font-size:13px}
+.hist-row:last-child{border:none}
+.hist-date{color:var(--dim);min-width:80px}
+.hist-freq{font-weight:600;color:var(--a2);min-width:60px}
+.hist-score{color:var(--dim)}
+
+/* Buttons */
+.btn-row{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.btn{padding:12px 28px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;border:none}
+.btn-primary{background:linear-gradient(135deg,var(--a1),var(--p1));color:#fff;box-shadow:0 4px 20px var(--glow)}
+.btn-primary:hover{transform:translateY(-2px)}
+.btn-ghost{background:transparent;border:1px solid var(--s3);color:var(--dim)}
+.btn-ghost:hover{border-color:var(--dim);color:var(--txt)}
+
+/* Responsive */
+@media(max-width:600px){.rating-grid{grid-template-columns:1fr 1fr}.features{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<!-- ═══════════════ WELCOME ═══════════════ -->
+<div id="welcome" class="screen active">
+  <h1>Frequency Portrait</h1>
+  <div class="sub">Discover the exact binaural frequency your brain resonates with.<br>
+  An adaptive journey through your neural landscape.</div>
+  <div class="features">
+    <div class="feat"><div class="ic">🧠</div><h3>Adaptive</h3><p>Binary search narrows from 8 frequencies to your precise sweet spot</p></div>
+    <div class="feat"><div class="ic">🎧</div><h3>Immersive</h3><p>Real-time audio visualizer + breathing guide during each test</p></div>
+    <div class="feat"><div class="ic">📊</div><h3>Multi-axis</h3><p>Rate mood, energy, focus, and calm — not just a single score</p></div>
+    <div class="feat"><div class="ic">🎵</div><h3>Personalized</h3><p>Generate a custom binaural soundscape from your results</p></div>
+    <div class="feat"><div class="ic">📈</div><h3>History</h3><p>Track how your frequency profile evolves over time</p></div>
+    <div class="feat"><div class="ic">🔒</div><h3>Private</h3><p>100% client-side. Nothing leaves your browser.</p></div>
+  </div>
+  <button class="big-btn" onclick="startJourney()">Begin Journey</button>
+  <div class="disclaimer">⚠️ Use stereo headphones. Do not use while driving. Stop if you feel discomfort. Not a medical device.</div>
+</div>
+
+<!-- ═══════════════ BASELINE ═══════════════ -->
+<div id="baseline" class="screen">
+  <div class="phase-label">Phase 1 — Baseline</div>
+  <div class="base-title">Settle In</div>
+  <div class="base-sub">Close your eyes. Breathe with the circle. We're measuring your resting state.</div>
+  <div class="breathe-circle" id="breathe-circle">Breathe</div>
+  <div class="base-timer" id="base-timer">30</div>
+  <div class="base-hint">Seconds remaining</div>
+</div>
+
+<!-- ═══════════════ TEST ═══════════════ -->
+<div id="test-screen" class="screen">
+  <div class="test-header">
+    <div class="prog-bg"><div class="prog-fill" id="prog-fill"></div></div>
+    <div class="prog-txt" id="prog-txt">Test 1 of 8</div>
+  </div>
+
+  <div class="adaptive-info" id="adaptive-info">Exploring: wide range</div>
+
+  <div class="freq-display">
+    <div class="freq-num" id="freq-num">6.0</div>
+    <div class="freq-label" id="freq-label">Hz — Theta — Meditation</div>
+  </div>
+
+  <div id="visualizer">
+    <canvas id="viz-canvas"></canvas>
+    <div class="viz-label">Live Waveform</div>
+  </div>
+
+  <div class="timer-wrap">
+    <svg viewBox="0 0 140 140"><circle class="tbg"/><circle class="tfg" id="tfg"/></svg>
+    <div class="timer-val" id="timer-val">60</div>
+  </div>
+
+  <div class="breathe-mini">
+    <div class="breathe-dot" id="bd0"></div>
+    <div class="breathe-dot" id="bd1"></div>
+    <div class="breathe-dot" id="bd2"></div>
+    <div class="breathe-dot" id="bd3"></div>
+    <div class="breathe-txt" id="breathe-txt">Breathe...</div>
+  </div>
+
+  <div class="rating-grid" id="rating-grid">
+    <div class="rating-card" onclick="setRating('mood',1)" id="r-mood-1"><div class="rlabel">Mood</div><div class="rval">😔</div><div class="rbar"><div class="rbar-fill" style="width:20%;background:var(--p1)"></div></div></div>
+    <div class="rating-card" onclick="setRating('mood',2)" id="r-mood-2"><div class="rlabel">Mood</div><div class="rval">😐</div><div class="rbar"><div class="rbar-fill" style="width:40%;background:var(--p1)"></div></div></div>
+    <div class="rating-card" onclick="setRating('mood',3)" id="r-mood-3"><div class="rlabel">Mood</div><div class="rval">🙂</div><div class="rbar"><div class="rbar-fill" style="width:60%;background:var(--p1)"></div></div></div>
+    <div class="rating-card" onclick="setRating('mood',4)" id="r-mood-4"><div class="rlabel">Mood</div><div class="rval">😊</div><div class="rbar"><div class="rbar-fill" style="width:80%;background:var(--p1)"></div></div></div>
+    <div class="rating-card" onclick="setRating('energy',1)" id="r-energy-1"><div class="rlabel">Energy</div><div class="rval">💤</div><div class="rbar"><div class="rbar-fill" style="width:20%;background:var(--a1)"></div></div></div>
+    <div class="rating-card" onclick="setRating('energy',2)" id="r-energy-2"><div class="rlabel">Energy</div><div class="rval">😌</div><div class="rbar"><div class="rbar-fill" style="width:40%;background:var(--a1)"></div></div></div>
+    <div class="rating-card" onclick="setRating('energy',3)" id="r-energy-3"><div class="rlabel">Energy</div><div class="rval">⚡</div><div class="rbar"><div class="rbar-fill" style="width:60%;background:var(--a1)"></div></div></div>
+    <div class="rating-card" onclick="setRating('energy',4)" id="r-energy-4"><div class="rlabel">Energy</div><div class="rval">🔥</div><div class="rbar"><div class="rbar-fill" style="width:80%;background:var(--a1)"></div></div></div>
+    <div class="rating-card" onclick="setRating('focus',1)" id="r-focus-1"><div class="rlabel">Focus</div><div class="rval">🌊</div><div class="rbar"><div class="rbar-fill" style="width:20%;background:var(--g1)"></div></div></div>
+    <div class="rating-card" onclick="setRating('focus',2)" id="r-focus-2"><div class="rlabel">Focus</div><div class="rval">🎯</div><div class="rbar"><div class="rbar-fill" style="width:40%;background:var(--g1)"></div></div></div>
+    <div class="rating-card" onclick="setRating('focus',3)" id="r-focus-3"><div class="rlabel">Focus</div><div class="rval">🔬</div><div class="rbar"><div class="rbar-fill" style="width:60%;background:var(--g1)"></div></div></div>
+    <div class="rating-card" onclick="setRating('focus',4)" id="r-focus-4"><div class="rlabel">Focus</div><div class="rval">💎</div><div class="rbar"><div class="rbar-fill" style="width:80%;background:var(--g1)"></div></div></div>
+  </div>
+
+  <button class="btn btn-ghost" onclick="skipTest()">Skip →</button>
+</div>
+
+<!-- ═══════════════ RESULTS ═══════════════ -->
+<div id="results" class="screen">
+  <h2>Your Frequency Portrait</h2>
+  <div class="rsub" id="rsub">Adaptive scan complete</div>
+
+  <div class="top-pick">
+    <div class="tp-label">Your Resonant Frequency</div>
+    <div class="tp-freq" id="tp-freq">6.0 Hz</div>
+    <div class="tp-state" id="tp-state">Theta</div>
+    <div class="tp-desc" id="tp-desc">Your brain resonates most strongly at this frequency.</div>
+  </div>
+
+  <div class="card">
+    <h3>Spectrum Response</h3>
+    <canvas id="spectrum-canvas"></canvas>
+  </div>
+
+  <div class="card">
+    <h3>Multi-Axis Profile</h3>
+    <canvas id="radar-canvas" width="300" height="300" style="max-width:280px;margin:0 auto;display:block"></canvas>
+  </div>
+
+  <div class="card">
+    <h3>Recommendations</h3>
+    <div id="recs"></div>
+  </div>
+
+  <div class="card" id="history-card" style="display:none">
+    <h3>Session History</h3>
+    <div id="hist-list"></div>
+  </div>
+
+  <div class="card">
+    <h3>Generate Soundscape</h3>
+    <p style="font-size:13px;color:var(--dim);margin-bottom:16px">Create a personalized binaural session based on your portrait.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="genSoundscape(15)">15 min</button>
+      <button class="btn btn-primary" onclick="genSoundscape(30)">30 min</button>
+      <button class="btn btn-primary" onclick="genSoundscape(60)">60 min</button>
+    </div>
+    <div id="soundscape-status" style="font-size:12px;color:var(--g1);margin-top:12px"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="exportProfile()">📋 Copy Profile</button>
+    <button class="btn btn-ghost" onclick="restart()">↻ Retake</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// PARTICLE BACKGROUND
+// ═══════════════════════════════════════════════════════════════
+(function(){
+  const c=document.getElementById('particles'),x=c.getContext('2d');
+  let W,H,pts=[];
+  function resize(){W=c.width=innerWidth;H=c.height=innerHeight;pts=[];
+    for(let i=0;i<80;i++)pts.push({x:Math.random()*W,y:Math.random()*H,
+      vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*2+.5})}
+  function draw(){
+    x.clearRect(0,0,W,H);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+      x.beginPath();x.arc(p.x,p.y,p.r,0,Math.PI*2);
+      x.fillStyle='rgba(124,106,239,0.15)';x.fill()});
+    // Connect nearby
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+      let d=Math.hypot(pts[i].x-pts[j].x,pts[i].y-pts[j].y);
+      if(d<120){x.beginPath();x.moveTo(pts[i].x,pts[i].y);x.lineTo(pts[j].x,pts[j].y);
+        x.strokeStyle=`rgba(124,106,239,${.06*(1-d/120)})`;x.stroke()}}
+    requestAnimationFrame(draw)}
+  resize();draw();addEventListener('resize',resize);
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// BRAIN STATES
+// ═══════════════════════════════════════════════════════════════
+const STATES=[
+  {f:2, name:'Delta', desc:'Deep sleep & regeneration', color:'#34d399'},
+  {f:4, name:'Theta', desc:'Deep meditation & creativity', color:'#7c6aef'},
+  {f:6, name:'Theta', desc:'Meditation & inner focus', color:'#a78bfa'},
+  {f:8, name:'Alpha', desc:'Relaxation & calm awareness', color:'#f472b6'},
+  {f:10,name:'Alpha', desc:'Flow state & learning', color:'#fb7185'},
+  {f:13,name:'Beta',  desc:'Focused attention (SMR)', color:'#fbbf24'},
+  {f:16,name:'Beta',  desc:'Active thinking & analysis', color:'#f59e0b'},
+  {f:20,name:'Beta',  desc:'High alert & problem solving', color:'#ef4444'},
+];
+const CARRIER=200;
+const CIRC=2*Math.PI*64;
+
+// ═══════════════════════════════════════════════════════════════
+// AUDIO ENGINE
+// ═══════════════════════════════════════════════════════════════
+let actx=null,oL=null,oR=null,gain=null;
+let analyser=null,vizData=null;
+
+function initAudio(){
+  if(actx)return;
+  actx=new(window.AudioContext||window.webkitAudioContext)();
+  oL=actx.createOscillator();oR=actx.createOscillator();
+  oL.type='sine';oR.type='sine';
+  let pL=actx.createStereoPanner(),pR=actx.createStereoPanner();
+  pL.pan.value=-1;pR.pan.value=1;
+  gain=actx.createGain();gain.gain.value=0;
+  analyser=actx.createAnalyser();analyser.fftSize=2048;
+  vizData=new Uint8Array(analyser.frequencyBinCount);
+  oL.connect(pL);pL.connect(gain);
+  oR.connect(pR);pR.connect(gain);
+  gain.connect(analyser);analyser.connect(actx.destination);
+  oL.start();oR.start();
+}
+
+function playFreq(hz){
+  if(!actx)initAudio();
+  if(actx.state==='suspended')actx.resume();
+  let t=actx.currentTime;
+  oL.frequency.setTargetAtTime(CARRIER,t,.05);
+  oR.frequency.setTargetAtTime(CARRIER+hz,t,.05);
+  gain.gain.cancelScheduledValues(t);
+  gain.gain.setTargetAtTime(.22,t,.4);
+}
+
+function stopAudio(){
+  if(!gain||!actx)return;
+  let t=actx.currentTime;
+  gain.gain.cancelScheduledValues(t);
+  gain.gain.setTargetAtTime(0,t,.3);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// VISUALIZER
+// ═══════════════════════════════════════════════════════════════
+let vizAnim=null;
+function startViz(){
+  const c=document.getElementById('viz-canvas');
+  const ctx=c.getContext('2d');
+  function resize(){c.width=c.parentElement.clientWidth;c.height=c.parentElement.clientHeight}
+  resize();addEventListener('resize',resize);
+  function draw(){
+    vizAnim=requestAnimationFrame(draw);
+    if(!analyser)return;
+    analyser.getByteTimeDomainData(vizData);
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.beginPath();
+    let sl=vizData.length,w=c.width,h=c.height;
+    for(let i=0;i<sl;i++){
+      let x=(i/sl)*w;
+      let y=(vizData[i]/255)*h;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}
+    ctx.strokeStyle='rgba(124,106,239,0.6)';ctx.lineWidth=2;ctx.stroke();
+    // Glow layer
+    ctx.beginPath();
+    for(let i=0;i<sl;i++){
+      let x=(i/sl)*w,y=(vizData[i]/255)*h;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}
+    ctx.strokeStyle='rgba(167,139,250,0.2)';ctx.lineWidth=6;ctx.stroke();
+  }
+  draw();
+}
+function stopViz(){cancelAnimationFrame(vizAnim)}
+
+// ═══════════════════════════════════════════════════════════════
+// BREATHING GUIDE
+// ═══════════════════════════════════════════════════════════════
+let breatheInterval=null;
+const BREATH_SEQ=[
+  {phase:'inhale',dur:4000,txt:'Breathe in...'},
+  {phase:'hold',dur:4000,txt:'Hold...'},
+  {phase:'exhale',dur:4000,txt:'Breathe out...'},
+  {phase:'hold',dur:4000,txt:'Hold...'},
+];
+function startBreathe(){
+  let step=0;
+  function cycle(){
+    let s=BREATH_SEQ[step%4];
+    document.querySelectorAll('.breathe-dot').forEach((d,i)=>{
+      d.classList.toggle('active',i===step%4)});
+    document.getElementById('breathe-txt').textContent=s.txt;
+    step++;
+    breatheInterval=setTimeout(cycle,s.dur)}
+  cycle()}
+function stopBreathe(){clearTimeout(breatheInterval)}
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+let state={
+  phase:'welcome',baseline:0,testIdx:0,
+  queue:[],// adaptive queue of frequencies to test
+  ratings:{},// {freq:{mood:1-4,energy:1-4,focus:1-4}}
+  timer:null,timeLeft:0,
+  history:JSON.parse(localStorage.getItem('fp_history')||'[]'),
+};
+
+// ═══════════════════════════════════════════════════════════════
+// SCREENS
+// ═══════════════════════════════════════════════════════════════
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FLOW
+// ═══════════════════════════════════════════════════════════════
+function startJourney(){
+  state.ratings={};
+  state.queue=buildInitialQueue();
+  state.testIdx=0;
+  showScreen('baseline');
+  runBaseline();
+}
+
+function buildInitialQueue(){
+  // Start with 6 evenly spaced frequencies for initial scan
+  return [2,6,8,10,13,20];
+}
+
+function buildAdaptiveQueue(){
+  // After initial scan, find best rated and test neighbors
+  let scores=Object.entries(state.ratings).map(([f,r])=>{
+    let avg=(r.mood+r.energy+r.focus)/3;
+    return{freq:parseFloat(f),score:avg}});
+  scores.sort((a,b)=>b.score-a.score);
+  let best=scores[0];
+  if(!best)return[];
+  // Test frequencies around the best
+  let neighbors=[];
+  for(let d=-2;d<=2;d+=2){
+    let nf=best.freq+d;
+    if(nf>=1&&nf<=30&&!state.ratings[nf])neighbors.push(nf)}
+  return neighbors;
+}
+
+// ── Baseline ──
+function runBaseline(){
+  let dur=30,state2=0;
+  const phases=['inhale','hold','exhale','hold'];
+  const texts=['Breathe in...','Hold...','Breathe out...','Hold...'];
+  let pIdx=0,elapsed=0;
+  const circle=document.getElementById('breathe-circle');
+
+  function tick(){
+    if(elapsed>=dur){
+      state.baseline=elapsed;
+      // After baseline, start tests
+      setTimeout(()=>{showScreen('test-screen');loadTest()},500);
+      return}
+    let remaining=dur-elapsed;
+    document.getElementById('base-timer').textContent=remaining;
+    // Breathing
+    let phase=phases[pIdx%4];
+    circle.className='breathe-circle '+phase;
+    circle.textContent=texts[pIdx%4];
+    if(elapsed%4===0)pIdx++;
+    elapsed++;
+    setTimeout(tick,1000)}
+  tick();
+}
+
+// ── Test ──
+function loadTest(){
+  if(state.testIdx>=state.queue.length){
+    // Done with this round — check if we need adaptive refinement
+    if(state.testIdx===6&&Object.keys(state.ratings).length>=5){
+      // Build adaptive queue for refinement
+      let adaptive=buildAdaptiveQueue();
+      if(adaptive.length>0){
+        state.queue=adaptive;
+        state.testIdx=0;
+        updateAdaptiveInfo();
+        loadTest();
+        return}}
+    showResults();return}
+  let freq=state.queue[state.testIdx];
+  let st=STATES.find(s=>s.f===freq)||{name:'Custom',desc:'Custom frequency',color:'#a78bfa'};
+  // UI
+  document.getElementById('prog-fill').style.width=((state.testIdx)/state.queue.length*100)+'%';
+  document.getElementById('prog-txt').textContent=`Test ${state.testIdx+1} of ${state.queue.length}`;
+  document.getElementById('freq-num').textContent=freq.toFixed(1);
+  document.getElementById('freq-label').textContent=`Hz — ${st.name} — ${st.desc}`;
+  document.getElementById('freq-num').style.background=`linear-gradient(135deg,${st.color},${st.color}88)`;
+  document.getElementById('freq-num').style['-webkit-background-clip']='text';
+  // Reset ratings
+  document.querySelectorAll('.rating-card').forEach(c=>c.classList.remove('selected'));
+  // Audio
+  playFreq(freq);
+  startViz();
+  startBreathe();
+  // Timer
+  state.timeLeft=60;
+  updateTimer();
+  clearInterval(state.timer);
+  state.timer=setInterval(()=>{
+    state.timeLeft--;updateTimer();
+    if(state.timeLeft<=0)nextTest()},1000);
+  updateAdaptiveInfo();
+}
+
+function updateTimer(){
+  document.getElementById('timer-val').textContent=state.timeLeft;
+  document.getElementById('tfg').style.strokeDashoffset=CIRC*(1-state.timeLeft/60);
+}
+
+function updateAdaptiveInfo(){
+  let el=document.getElementById('adaptive-info');
+  if(state.testIdx<6)el.textContent='Phase 1: Exploring wide range';
+  else el.textContent='Phase 2: Refining around your sweet spot';
+}
+
+function setRating(axis,val){
+  let freq=state.queue[state.testIdx];
+  if(!state.ratings[freq])state.ratings[freq]={mood:3,energy:3,focus:3};
+  state.ratings[freq][axis]=val;
+  // Update UI
+  for(let i=1;i<=4;i++){
+    let card=document.getElementById(`r-${axis}-${i}`);
+    if(card)card.classList.toggle('selected',i<=val)}
+  // Check if all 3 axes rated → auto advance
+  let r=state.ratings[freq];
+  if(r.mood&&r.energy&&r.focus&&r.mood!==3&&r.energy!==3&&r.focus!==3){
+    setTimeout(nextTest,400)}
+}
+
+function skipTest(){nextTest()}
+
+function nextTest(){
+  stopAudio();stopViz();stopBreathe();clearInterval(state.timer);
+  state.testIdx++;
+  setTimeout(loadTest,300);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RESULTS
+// ═══════════════════════════════════════════════════════════════
+function showResults(){
+  showScreen('results');
+  stopAudio();stopViz();stopBreathe();
+  // Calculate best
+  let scores=Object.entries(state.ratings).map(([f,r])=>{
+    let avg=(r.mood+r.energy+r.focus)/3;
+    return{freq:parseFloat(f),score:avg,mood:r.mood,energy:r.energy,focus:r.focus}});
+  scores.sort((a,b)=>b.score-a.score);
+  let best=scores[0]||{freq:6,score:2.5};
+  let st=STATES.find(s=>s.f===best.freq)||{name:'Custom',desc:''};
+  document.getElementById('tp-freq').textContent=best.freq.toFixed(1)+' Hz';
+  document.getElementById('tp-state').textContent=st.name+' — '+st.desc;
+  document.getElementById('tp-desc').textContent=
+    `Based on your ratings, your brain resonates most strongly at ${best.freq.toFixed(1)} Hz (${st.name}). `+
+    `Composite score: ${best.score.toFixed(1)}/4.0 across mood, energy, and focus.`;
+  drawSpectrum(scores);
+  drawRadar(scores);
+  generateRecs(scores);
+  saveHistory(best);
+  showHistory();
+}
+
+function drawSpectrum(scores){
+  const c=document.getElementById('spectrum-canvas');
+  const ctx=c.getContext('2d');
+  c.width=c.parentElement.clientWidth-48;c.height=120;
+  let w=c.width,h=c.height;
+  // Background
+  ctx.fillStyle='#12122a';ctx.fillRect(0,0,w,h);
+  // Bars
+  let maxF=25,barW=w/maxF*.7,gap=w/maxF*.3;
+  for(let i=0;i<maxF;i++){
+    let freq=i+1;
+    let s=scores.find(x=>x.freq===freq);
+    let val=s?(s.score/4):0;
+    let bh=val*(h-20);
+    let x=i*(barW+gap)+gap/2;
+    let y=h-10-bh;
+    // Gradient
+    let grad=ctx.createLinearGradient(0,y,0,h-10);
+    let st2=STATES.find(s=>s.f===freq);
+    let col=st2?st2.color:'#64748b';
+    grad.addColorStop(0,col);
+    grad.addColorStop(1,col+'33');
+    ctx.fillStyle=grad;
+    ctx.beginPath();
+    ctx.roundRect(x,y,barW,bh,3);
+    ctx.fill();
+    // Label
+    if(freq%2===0||freq===1){
+      ctx.fillStyle='#64748b';ctx.font='9px Inter';ctx.textAlign='center';
+      ctx.fillText(freq+'Hz',x+barW/2,h-1)}}
+}
+
+function drawRadar(scores){
+  const c=document.getElementById('radar-canvas');
+  const ctx=c.getContext('2d');
+  let cx=150,cy=150,r=110;
+  ctx.clearRect(0,0,300,300);
+  let axes=[
+    {label:'Mood',key:'mood',color:'#f472b6'},
+    {label:'Energy',key:'energy',color:'#7c6aef'},
+    {label:'Focus',key:'focus',color:'#34d399'},
+    {label:'Calm',key:'calm',color:'#60a5fa'},
+  ];
+  // Use best score for each axis
+  let best=scores[0]||{mood:2,energy:2,focus:2};
+  let vals=[best.mood||2,best.energy||2,best.focus||2,
+    Math.round((best.mood+best.focus)/2)||2];
+  let n=axes.length,step=Math.PI*2/n;
+  // Grid
+  for(let ring=1;ring<=4;ring++){
+    let rr=(ring/4)*r;
+    ctx.beginPath();
+    for(let i=0;i<=n;i++){let a=i*step-Math.PI/2;
+      let x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}
+    ctx.strokeStyle='rgba(100,116,139,0.12)';ctx.stroke()}
+  // Data
+  ctx.beginPath();
+  vals.forEach((v,i)=>{
+    let a=i*step-Math.PI/2;
+    let rr=(v/4)*r;
+    let x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});
+  ctx.closePath();
+  ctx.fillStyle='rgba(124,106,239,0.15)';ctx.fill();
+  ctx.strokeStyle='#7c6aef';ctx.lineWidth=2;ctx.stroke();
+  // Dots + labels
+  vals.forEach((v,i)=>{
+    let a=i*step-Math.PI/2;
+    let rr=(v/4)*r;
+    let x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr;
+    ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);
+    ctx.fillStyle=axes[i].color;ctx.fill();
+    let lx=cx+Math.cos(a)*(r+20),ly=cy+Math.sin(a)*(r+20);
+    ctx.fillStyle='#94a3b8';ctx.font='11px Inter';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(axes[i].label,lx,ly)});
+}
+
+function generateRecs(scores){
+  if(scores.length===0){document.getElementById('recs').innerHTML='<p style="color:var(--dim)">No data. Retake the test.</p>';return}
+  let best=scores[0];
+  let st=STATES.find(s=>s.f===best.freq)||{name:'Custom',desc:''};
+  let recs=[];
+  recs.push({ic:'⭐',txt:`Your resonant frequency is <strong>${best.freq.toFixed(1)} Hz</strong> (${st.name}). This is your neural home base.`});
+  // Find best for each axis
+  let bestMood=scores.reduce((a,b)=>(a.mood>b.mood?a:b));
+  let bestEnergy=scores.reduce((a,b)=>(a.energy>b.energy?a:b));
+  let bestFocus=scores.reduce((a,b)=>(a.focus>b.focus?a:b));
+  if(bestMood.freq!==best.freq)recs.push({ic:'😊',txt:`For mood elevation, try <strong>${bestMood.freq.toFixed(1)} Hz</strong>.`});
+  if(bestEnergy.freq!==best.freq)recs.push({ic:'⚡',txt:`For energy boost, use <strong>${bestEnergy.freq.toFixed(1)} Hz</strong>.`});
+  if(bestFocus.freq!==best.freq)recs.push({ic:'🎯',txt:`For deep focus, try <strong>${bestFocus.freq.toFixed(1)} Hz</strong>.`});
+  let worst=scores[scores.length-1];
+  recs.push({ic:'⚠️',txt:`Avoid <strong>${worst.freq.toFixed(1)} Hz</strong> — your least comfortable frequency (${worst.score.toFixed(1)}/4).`});
+  recs.push({ic:'💡',txt:`Start with <strong>${best.freq.toFixed(1)} Hz</strong> for 15–20 min. Use carrier 150–250 Hz for comfort.`});
+  document.getElementById('recs').innerHTML=recs.map(r=>
+    `<div class="rec"><div class="rec-ic">${r.ic}</div><div class="rec-tx">${r.txt}</div></div>`).join('');
+}
+
+function saveHistory(best){
+  let entry={date:new Date().toISOString().split('T')[0],freq:best.freq,score:best.score,
+    ratings:JSON.parse(JSON.stringify(state.ratings))};
+  state.history.push(entry);
+  if(state.history.length>20)state.history=state.history.slice(-20);
+  localStorage.setItem('fp_history',JSON.stringify(state.history));
+}
+
+function showHistory(){
+  if(state.history.length<2){document.getElementById('history-card').style.display='none';return}
+  document.getElementById('history-card').style.display='block';
+  let html='';
+  state.history.slice(-5).reverse().forEach(h=>{
+    html+=`<div class="hist-row"><span class="hist-date">${h.date}</span>
+      <span class="hist-freq">${h.freq.toFixed(1)} Hz</span>
+      <span class="hist-score">Score: ${h.score.toFixed(1)}/4.0</span></div>`});
+  document.getElementById('hist-list').innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SOUNDSCAPE GENERATOR
+// ═══════════════════════════════════════════════════════════════
+function genSoundscape(minutes){
+  let scores=Object.entries(state.ratings).map(([f,r])=>{
+    let avg=(r.mood+r.energy+r.focus)/3;return{freq:parseFloat(f),score:avg}});
+  scores.sort((a,b)=>b.score-a.score);
+  let best=scores[0]||{freq:6};
+  // Generate WAV using OfflineAudioContext
+  let sr=44100,dur=minutes*60,len=sr*dur;
+  document.getElementById('soundscape-status').textContent='Generating '+minutes+' min soundscape...';
+  try{
+    let offline=new OfflineAudioContext(2,len,sr);
+    let oL=offline.createOscillator(),oR=offline.createOscillator();
+    oL.type='sine';oR.type='sine';
+    let pL=offline.createStereoPanner(),pR=offline.createStereoPanner();
+    pL.pan.value=-1;pR.pan.value=1;
+    let g=offline.createGain();g.gain.value=0.22;
+    // Fade in/out
+    g.gain.setValueAtTime(0,0);
+    g.gain.linearRampToValueAtTime(0.22,2);
+    g.gain.setValueAtTime(0.22,dur-2);
+    g.gain.linearRampToValueAtTime(0,dur);
+    oL.frequency.value=CARRIER;
+    oR.frequency.value=CARRIER+best.freq;
+    oL.connect(pL);pL.connect(g);
+    oR.connect(pR);pR.connect(g);
+    g.connect(offline.destination);
+    oL.start(0);oR.start(0);
+    offline.startRendering().then(buffer=>{
+      let wav=audioBufferToWav(buffer);
+      let blob=new Blob([wav],{type:'audio/wav'});
+      let url=URL.createObjectURL(blob);
+      let a=document.createElement('a');
+      a.href=url;a.download=`portrait-${best.freq.toFixed(1)}Hz-${minutes}min.wav`;
+      a.click();URL.revokeObjectURL(url);
+      document.getElementById('soundscape-status').textContent='✓ Downloaded: portrait-'+best.freq.toFixed(1)+'Hz-'+minutes+'min.wav';
+    }).catch(e=>{
+      document.getElementById('soundscape-status').textContent='Error: '+e.message;
+    });
+  }catch(e){
+    document.getElementById('soundscape-status').textContent='OfflineAudio not supported in this browser';
+  }
+}
+
+function audioBufferToWav(buffer){
+  let numCh=buffer.numberOfChannels,sr=buffer.sampleRate,len=buffer.length;
+  let bytesPerSample=2,blockAlign=numCh*bytesPerSample;
+  let dataSize=len*blockAlign;
+  let buf=new ArrayBuffer(44+dataSize);
+  let v=new DataView(buf);
+  function wr(off,str){for(let i=0;i<str.length;i++)v.setUint8(off+i,str.charCodeAt(i))}
+  wr(0,'RIFF');v.setUint32(4,36+dataSize,true);wr(8,'WAVE');
+  wr(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);
+  v.setUint16(22,numCh,true);v.setUint32(24,sr,true);
+  v.setUint32(28,sr*blockAlign,true);v.setUint16(32,blockAlign,true);
+  v.setUint16(34,16,true);wr(36,'data');v.setUint32(40,dataSize,true);
+  let off=44;
+  for(let i=0;i<len;i++){
+    for(let ch=0;ch<numCh;ch++){
+      let s=Math.max(-1,Math.min(1,buffer.getChannelData(ch)[i]));
+      v.setInt16(off,s<0?s*0x8000:s*0x7FFF,true);off+=2}}
+  return buf;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════════════════════════════
+function exportProfile(){
+  let scores=Object.entries(state.ratings).map(([f,r])=>{
+    let avg=(r.mood+r.energy+r.focus)/3;return{freq:parseFloat(f),score:avg,mood:r.mood,energy:r.energy,focus:r.focus}});
+  scores.sort((a,b)=>b.score-a.score);
+  let best=scores[0]||{freq:6,score:2.5};
+  let t=`FREQUENCY PORTRAIT — Personalized Profile\n`;
+  t+=`${'═'.repeat(50)}\n\n`;
+  t+=`Resonant Frequency: ${best.freq.toFixed(1)} Hz\n`;
+  t+=`Composite Score: ${best.score.toFixed(1)}/4.0\n`;
+  t+=`Date: ${new Date().toLocaleDateString()}\n\n`;
+  t+=`ALL RATINGS\n${'─'.repeat(30)}\n`;
+  scores.forEach(s=>{
+    let st=STATES.find(x=>x.f===s.freq);
+    t+=`${s.freq.toString().padStart(2)} Hz (${(st?st.name:'Custom').padEnd(6)}) Mood:${s.mood} Energy:${s.energy} Focus:${s.focus} Avg:${s.score.toFixed(1)}\n`});
+  t+=`\nRECOMMENDATIONS\n${'─'.repeat(30)}\n`;
+  t+=`Primary: ${best.freq.toFixed(1)} Hz\n`;
+  let bestMood=scores.reduce((a,b)=>a.mood>b.mood?a:b);
+  let bestFocus=scores.reduce((a,b)=>a.focus>b.focus?a:b);
+  t+=`Mood: ${bestMood.freq.toFixed(1)} Hz\n`;
+  t+=`Focus: ${bestFocus.freq.toFixed(1)} Hz\n`;
+  t+=`\nGenerated by Frequency Portrait\n`;
+  navigator.clipboard.writeText(t).then(()=>{
+    let btn=document.querySelector('.btn-primary');
+    btn.textContent='✓ Copied!';
+    setTimeout(()=>btn.textContent='📋 Copy Profile',2000)});
+}
+
+function restart(){stopAudio();stopViz();stopBreathe();clearInterval(state.timer);showScreen('welcome')}
+
+// Init
+document.getElementById('tfg').style.strokeDasharray=CIRC;
+</script>
+</body>
+</html>

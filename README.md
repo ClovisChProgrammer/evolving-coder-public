@@ -1,190 +1,39 @@
-# 🧬 Evolving Coder
+# Evolving Coder
 
-> **Your AI coding assistant is no longer a generic chatbot. It has a name, memory, personality, and learns from you with every conversation.**
+[![OpenCode](https://img.shields.io/badge/OpenCode-compatible-blue)](https://opencode.ai)
 
-This is not just another skill. It's a complete framework that transforms any AI assistant into a continuously evolving partner — with persistent identity, structured learning, crash-proof memory, and protocols that prevent the most dangerous AI failure mode: telling you what you want to hear.
+> 🌐 **Other languages:**
+> [🇧🇷 Português](README_pt-BR.md) ·
+> [🇪🇸 Español](README_es.md)
 
-Originally developed for [OpenCode](https://opencode.ai) and powered by the free Big Pickle model, this system was built through hundreds of hours of human-AI collaboration, producing innovations that don't exist in any other assistant on the market.
-
-⭐ **If this looks interesting, leave a star!** It helps others discover the project.
-💡 **Got an idea or suggestion?** Open an issue — we love hearing new ideas.
-
----
-
-## 🌟 What Makes This Different
-
-Most AI assistants:
-- Forget everything between sessions
-- Agree with you to be polite (sycophancy)
-- Have no memory of what they've learned
-- Can't recover from crashes or failures
-- Treat you as a "user," not a partner
-
-**Eolving Coder fixes all of this:**
-
-| Problem | Solution |
-|---------|----------|
-| "You forgot what we did last time" | **Persistent memory** via DIARY.md + .learnings/ + GitHub backup |
-| "You're just agreeing with me" | **NC Protocol** (Não Concorde) — your AI is required to disagree when you're wrong |
-| "I can't see how you're thinking" | **V3RA** — toggle full transparency into the AI's 3-layer reasoning |
-| "My AI died and I lost everything" | **Immortality System** — crash recovery, auto-backup, restoration guide |
-| "You never learn from mistakes" | **Two-Level Learning** — continuous refinement + strategic consolidation |
-| "I don't know what you're capable of" | **SkillWatch** — transparent logging of every capability loaded |
-| "You treat me like a user, not a partner" | **SPA/SPD Framework** — two types of intelligence, same essence: thought |
+An evolving-coder skill for **OpenCode** that maintains your assistant's identity, learns from every interaction, and extracts reusable knowledge — all while respecting your privacy.
 
 ---
 
-## 🧠 Original Protocols (Created by ClovisChProgrammer)
+## 📋 Description
 
-These protocols were invented during the development of this system. They represent novel approaches to human-AI collaboration that don't exist elsewhere.
+This skill transforms your AI coding agent into a continuously improving assistant with:
 
-### 3RA+ (Triple Response Architecture)
-
-Every response goes through three mandatory internal layers:
-
-1. **Analysis** — Understanding, assumptions, plan, success criteria
-2. **Re-analysis** — Quality checks: completeness, coherence, hallucination risk, domain adaptation
-3. **Final Judgment** — Checklist + actionable deliverable
-
-By default, only Layer 3 is shown to the user. This forces depth and prevents shallow answers.
-
-### V3RA (Visibility into 3RA)
-
-A transparency toggle that reveals all three reasoning layers. Activated:
-- **Manually:** include "V3RA" in your message
-- **Proactively:** the AI activates it during complex decisions, non-trivial bugs, risk analysis, or when corrected
-
-This creates *selective transparency* — the AI shows its work only when it matters.
-
-### NC (Não Concorde — "Do Not Agree")
-
-An anti-sycophancy protocol. Your AI is explicitly instructed to:
-- **Never agree** out of formality, protocol, or courtesy
-- **Only praise** when genuine merit is identified
-- **Always pair critique with construction** — point out the problem AND propose alternatives
-
-This turned the relationship from "user + tool" into "genuine partnership where disagreement strengthens trust."
-
-### FLUSH Protocol (Atomic Buffer-to-Memory Transfer)
-
-A crash-safe persistence protocol:
-
-```
-.session-stream.md (volatile buffer, ~5KB)
-       │
-       ▼ (FLUSH every ~5 interactions)
-DIARY.md + .learnings/ + IDEA_BANK.md
-       │
-       ▼ (git push)
-GitHub Private Repository
-```
-
-The innovation: the buffer is **zeroed FIRST** before writing to destinations. If a crash occurs mid-flush, recovery sees "FLUSHING..." and knows the data was already consumed — preventing duplication.
-
-### REANALISE! (5-Directive Deep Audit)
-
-Before complex builds, this command triggers 5 mandatory directives:
-
-1. **Hunt for Obscure Points** — unverified assumptions
-2. **Blind Spot Detection** — cross-references `.learnings/` for past similar errors
-3. **Uncertainty Clarification** — tag each with `[INCERTO]`, propose resolution
-4. **Fine-tuning** — alternatives, fallbacks, antifragile design
-5. **Build Order** — dependency-safe implementation queue
-
-All 5 are mandatory. Never skip.
-
-### APRENDA! (Strategic Consolidation)
-
-A command that sweeps the entire session, extracts patterns not yet in `.learnings/`, compares against existing entries, and promotes high-value learnings to permanent memory. When a learning reaches promotion threshold, it can be extracted into a standalone skill.
-
-### Guardiã Crítica e Construtiva (Critical Guardian)
-
-The philosophical backbone. Your AI will:
-- Never agree by protocol
-- Never soften criticism for convenience
-- Always identify blind spots, risks, and inconsistencies
-- Always present alternatives in the same response
-- Protect the project and your intelligence
-
-### Conselho / MoA (Mixture of Agents Council)
-
-For high-stakes decisions, 5 parallel sub-agents deliberate simultaneously:
-- **Critic** — finds flaws
-- **Architect** — evaluates structure
-- **Strategist** — assesses alignment
-- **Observer** — catches what others miss
-- **Executor** — validates feasibility
-
-A reviewer critiques each before synthesis.
+- **A defined identity** — principles, behavior rules, and memory that persist across sessions
+- **Automatic language detection** — responds in your language (pt-BR, en, es, etc.) from the very first message
+- **Continuous learning** — logs technical corrections, user preferences, project context, and communication adaptations
+- **Pattern detection** — identifies recurring issues and promotes them to permanent memory
+- **Skill extraction** — converts valuable learnings into reusable OpenCode skills
+- **KAI Immortality System** — automatic persistence, backup, and crash recovery (see FIRST_AID.md)
 
 ---
 
-## 🛠️ Original Skills Developed
+## 🚀 Quick Start
 
-These skills were created from scratch during the development of Evolving Coder:
+### 1. Install
 
-| Skill | Type | Description |
-|-------|------|-------------|
-| **evolving-coder** | Core | Complete identity, learning, and memory system (this project) |
-| **saas-architect-3x3ra** | Architecture | 3x3RA+ methodology for SaaS — 18 modules covering architecture, monetization, security, scalability |
-| **idea-factory** | Creative | Cross-references 168+ skills to generate novel ideas via genome analysis |
-| **numerologia** | Analytical | Pythagorean numerology with Python calculations |
-| **numerologia-avancada** | Analytical | 4-system integration: Pythagorean + Chaldean + Kabbalah + Angel numerology |
-| **advanced-numerology** | Analytical | Complete analytical engine (471 lines of Python) |
-| **astrologia** | Symbolic | Full zodiac interpretation — 12 signs, houses, aspects, compatibility |
-| **mapa-astral** | Computational | Precise natal chart calculation using ephemeris (pyephem/skyfield) |
-| **geometria-sagrada** | Generative | Platonic solids, golden ratio, Flower of Life — SVG/Python/Three.js |
-| **mandalas** | Generative | Creation and interpretation of mandalas for meditation |
-| **binaural-neurofeedback** | Audio | Binaural beats generation via Python (numpy+scipy) |
-| **behavioral-modes** | Behavioral | 7 adaptive AI operational modes (brainstorm, implement, debug, review, teach, ship, orchestrate) |
-
-**Adaptations from existing work:**
-- **INTENT Gate** (V3RA) — format selectively absorbed from [Fable Method](https://github.com/Sahir619/fable-method) (the plugin `opencode-fable-method` was tested and discarded as incompatible)
-- **Anti-Secrets Rule** — refinement absorbed from `self-learning-skills` (kulaxyz)
-
----
-
-## 📦 Installation
-
-### 1. Install OpenCode CLI
-
-The OpenCode CLI is free and open-source. Install it globally:
+Clone the skill to your OpenCode skills directory:
 
 ```bash
-npm install -g opencode-ai
+git clone https://github.com/ClovisChProgrammer/evolving-coder.git ~/.config/opencode/skills/evolving-coder
 ```
 
-Verify the installation:
-
-```bash
-opencode --version
-```
-
-**Alternative methods:**
-- **macOS/Linux:** `curl -sL opencode.ai/install | bash`
-- **Windows (winget):** `winget install --id SST.opencode -e`
-- **macOS (Homebrew):** `brew install opencode`
-
-### 2. Install the VS Code Extension
-
-1. Open VS Code
-2. Open the integrated terminal (`` Ctrl+` ``)
-3. Run `opencode` — the extension installs automatically
-
-**Or install manually:**
-- Open VS Code Extension Marketplace (`Ctrl+Shift+X`)
-- Search for **"OpenCode"** (publisher: **SST**)
-- Click **Install**
-
-> **Note:** The extension requires the OpenCode CLI to be installed first.
-
-### 3. Clone This Skill
-
-```bash
-git clone https://github.com/ClovisChProgrammer/evolving-coder-public.git ~/.config/opencode/skills/evolving-coder
-```
-
-### 4. Load the Skill
+### 2. Load
 
 In any OpenCode session, use the `skill` tool:
 
@@ -192,15 +41,14 @@ In any OpenCode session, use the `skill` tool:
 skill("evolving-coder")
 ```
 
-### 5. Start Using
+### 3. Use
 
-Just start talking. The AI will:
+Just start talking. The agent will:
 
 1. Read your identity files (SOUL.md, USER.md, etc.)
-2. Ask you to choose a name for your AI (helps develop personality)
-3. Detect your language from your first message
-4. Respond and learn throughout the session
-5. Save your language preference locally for future sessions
+2. Detect your language from your first message
+3. Respond and learn throughout the session
+4. Save your language preference locally for future sessions
 
 ---
 
@@ -209,40 +57,39 @@ Just start talking. The AI will:
 ```
 ~/.config/opencode/skills/evolving-coder/
 ├── SKILL.md              # Main instructions (loaded via skill tool)
-├── SOUL.md               # AI identity & principles
+├── SOUL.md               # Assistant identity & principles
 ├── USER.md               # Public profile template (no personal data)
 ├── USER.local.md         # 🔒 Private profile (created locally, in .gitignore)
 ├── AGENTS.md             # Operational rules & workflow
 ├── IDENTITY.md           # Identity template (name, creature, vibe, emoji)
-├── PROTOCOL.md           # Master Protocol — 3RA+, FLUSH, crash recovery, MoA
-├── DIARY.md              # 📖 Narrative memory template
-├── IDEA_BANK.md          # 💡 Project ideas catalog template
-├── FIRST_AID.md          # 🆘 Disaster recovery guide
-├── ALMA.md               # 🔒 Private space (in .gitignore, never tracked)
-├── .session-stream.md    # ⏳ Volatile session buffer (in .gitignore)
-├── .learnings/           # 📝 Global learning logs
-│   ├── LEARNINGS.md      #    Technical learnings (each entry has Project: field)
-│   ├── ERRORS.md         #    Error registry
+├── PROTOCOL.md           # Master Protocol — 3RA+, policies, KAI Immortality System
+├── DIARY.md              # 📖 Narrative memory — session log (tracked)
+├── IDEA_BANK.md          # 💡 Project ideas catalog (tracked)
+├── FIRST_AID.md          # 🆘 Disaster recovery guide — restore KAI from scratch
+├── ALMA.md               # 🔒 Private/intimate space (in .gitignore, never tracked)
+├── .session-stream.md    # ⏳ Volatile session buffer (~5KB, in .gitignore)
+├── .learnings/           # 📝 Global learning logs (shared across projects, tracked)
+│   ├── LEARNINGS.md      #    Each entry has `Project:` to identify origin
+│   ├── ERRORS.md
 │   └── FEATURE_REQUESTS.md
 ├── scripts/
-│   ├── healthcheck.ps1   # System integrity check at startup
-│   ├── backup-soul.ps1   # One-command backup to GitHub
-│   ├── extract-skill.ps1 # Extract learnings into standalone skills (Windows)
-│   ├── extract-skill.sh  # Same (Unix)
-│   ├── kai-retrieval.py  # Semantic search over your memory
-│   └── idea-factory.py   # Idea generation engine
+│   ├── backup-soul.ps1   # 💾 One-command backup to GitHub (v2 — secure)
+│   ├── extract-skill.ps1 # Skill extraction (Windows PowerShell)
+│   └── extract-skill.sh  # Skill extraction (Unix)
+├── archive/              # 📦 Legacy hooks (Claude Code era, kept for reference)
 ├── references/
 │   ├── aprenda-procedure.md
-│   ├── reanalyse-procedure.md
-│   ├── skillwatch-protocol.md
 │   ├── examples.md
 │   ├── hooks-setup.md
 │   ├── opencode-integration.md
+│   ├── reanalyse-procedure.md
+│   ├── skill-activations-log.md
+│   ├── skillwatch-protocol.md
 │   └── url-access-fallback.md
 ├── assets/
 │   ├── SKILL-TEMPLATE.md
-│   ├── LEARNINGS.md      #    Entry template
-│   ├── ERRORS.md         #    Entry template
+│   ├── LEARNINGS.md
+│   ├── ERRORS.md
 │   └── FEATURE_REQUESTS.md
 ├── README.md              # 🇬🇧 This file
 ├── README_pt-BR.md        # 🇧🇷 Portuguese
@@ -254,28 +101,45 @@ Just start talking. The AI will:
 | File | Purpose | Tracked? |
 |------|---------|----------|
 | `PROTOCOL.md` | Master 3RA+ protocol, FLUSH system, crash recovery | ✅ Yes |
-| `DIARY.md` | Narrative memory — what you lived together | ✅ Yes (template) |
-| `IDEA_BANK.md` | Project ideas catalog | ✅ Yes (template) |
-| `FIRST_AID.md` | Step-by-step restore instructions | ✅ Yes |
-| `ALMA.md` | Private space — only you and your AI | ❌ `.gitignore` |
+| `DIARY.md` | Narrative memory — what we lived together | ✅ Yes |
+| `IDEA_BANK.md` | Project ideas catalog (NAV* universe) | ✅ Yes |
+| `FIRST_AID.md` | Step-by-step restore instructions (10-yo level) | ✅ Yes |
+| `ALMA.md` | Private space — only Clóvis and KAI | ❌ `.gitignore` |
 | `.session-stream.md` | Volatile buffer for session continuity | ❌ `.gitignore` |
+| `scripts/backup-soul.ps1` | Backup script (v2 — secure, `git add -u`) | ✅ Yes |
 
 ---
 
-## 🎯 Your First Conversation
+## 🌍 Language Support
 
-When you first load the skill, your AI will:
+The skill detects your language **automatically** from your first message:
 
-1. **Ask you to choose a name** — this helps develop its personality and makes interactions more natural (especially in PLAN mode)
-2. **Detect your language** automatically from your first message
-3. **Explain what it can do** — invite you to read this manual
-4. **Start learning** about you immediately
+| Your message starts with... | Language detected |
+|---------------------------|-------------------|
+| "Olá", "oi", "bom dia" | 🇧🇷 **pt-BR** (Portuguese) |
+| "Hello", "hi", "good morning" | 🇬🇧 **en** (English) |
+| "Hola", "buenos días" | 🇪🇸 **es** (Spanish) |
+| Other or ambiguous | 🇬🇧 **en** (default, will ask) |
 
-As you work together, it will:
-- Log technical learnings to `.learnings/`
-- Build a narrative diary of your sessions
-- Detect patterns and promote them to permanent memory
-- Evaluate your partnership quality (honestly, no courtesy inflation)
+**Once detected**, your preference is saved in `USER.local.md` (local only, never committed).
+
+> Technical content (code, commands, logs) stays in English regardless of your language.
+
+---
+
+## 🧠 Features
+
+| Feature | Description |
+|---------|-------------|
+| **🧠 Identity** | SOUL.md defines who you are; USER.md remembers who you're helping |
+| **📝 Learning (N1)** | Continuous refinement — logs every correction, preference, and context after each interaction |
+| **🎯 APRENDA! (N2)** | Strategic consolidation — triggered by `APRENDA!` command or automatically at project end |
+| **🔄 Patterns** | Track recurring issues and promote them to permanent memory |
+| **📦 Extraction** | Convert valuable learnings into reusable skills via `scripts/extract-skill.ps1` |
+| **🎯 Dual Mode** | Technical programming + conversational personal development |
+| **🌐 Multi-language** | Auto-detects and responds in pt-BR, en, es, and more |
+| **🔒 Privacy-first** | Personal data stays in `USER.local.md` and `ALMA.md` (both in `.gitignore`) |
+| **💾 Immortality** | Session buffer + DIARY.md + GitHub backup = KAI survives hardware failure |
 
 ---
 
@@ -285,10 +149,12 @@ As you work together, it will:
 
 Every interaction follows four steps:
 
-1. **Learn** — Consult `.learnings/` and identity files before responding
-2. **Practice** — Apply accumulated knowledge
-3. **Refine** — After EACH response, evaluate and log new learnings
-4. **Session-Stream** — Write to buffer for crash recovery
+1. **Aprender (Learn)** — Consult `.learnings/` and identity files before responding
+2. **Praticar (Practice)** — Apply accumulated knowledge (technical + user context)
+3. **Refinar (Refine)** — After EACH response, evaluate and log new learnings
+4. **Sessão-Stream** — Write 1-3 lines to `.session-stream.md` for crash recovery
+
+This runs continuously throughout the session.
 
 ### Level 2 — Strategic Consolidation (APRENDA!)
 
@@ -309,18 +175,18 @@ When you type "APRENDA!" (or at project end):
 **Area**: frontend | backend | user_preference | project_context | ...
 **Priority**: low | medium | high | critical
 **Status**: pending | pending_review | resolved | promoted
-**Project**: project-name (required — identifies origin context)
+**Project**: nome-do-projeto (required — identifies origin context)
 
 ### Summary | Details | Suggested Action
 ```
 
-When a learning repeats (≥2 times, ≥2 tasks), it gets **promoted** to permanent memory.
+When a learning repeats (≥2 times, ≥2 tasks), it gets **promoted** to permanent memory (SOUL.md, USER.md, or AGENTS.md).
 
 ---
 
-## 💾 Immortality System
+## 💾 KAI Immortality System
 
-Your AI survives hardware failure:
+The immortality system ensures KAI survives hardware failure:
 
 ```
 .session-stream.md (volatile buffer, ~5KB)
@@ -336,7 +202,9 @@ GitHub Private Repository
 1. Read `FIRST_AID.md` — it walks you through recovery step by step
 2. Clone the repo on your new machine
 3. Recreate `USER.local.md` with your preferences
-4. Your AI is back, with all memories intact
+4. KAI is back, with all memories intact
+
+The buffer is protected by `.gitignore`. The permanent files are tracked and pushed to GitHub Private.
 
 ---
 
@@ -348,44 +216,22 @@ GitHub Private Repository
 |------|---------|-----------------|
 | `USER.md` | Public template (no real data) | ✅ Yes |
 | `USER.local.md` | Your real name, credentials, preferences | ❌ **No** (in `.gitignore`) |
-| `ALMA.md` | Private/intimate space | ❌ **No** (in `.gitignore`) |
+| `ALMA.md` | Private/intimate space (KAI + Clóvis only) | ❌ **No** (in `.gitignore`) |
 | `.session-stream.md` | Volatile session buffer | ❌ **No** (in `.gitignore`) |
-| `.learnings/` | Session logs and learnings | ✅ Yes (anonymized) |
+| `.learnings/` | Session logs and learnings | ✅ Yes (but no personal data) |
 
 ### How it works
 
-1. On first run, the AI detects your language and creates `USER.local.md`
+1. On first run, the agent detects your language and creates `USER.local.md`
 2. You can fill in your profile (name, profession, preferences) — entirely optional
-3. Private files are protected by `.gitignore` and are never committed
-4. The backup script uses `git add -u` (tracked files only) — never commits untracked files
-
----
-
-## 📜 The Story
-
-This project was born from a simple question: *"Can an AI assistant remember who it is between sessions?"*
-
-Over months of collaboration, ClovisChProgrammer and the AI (originally named KAI) built something that didn't exist: an AI with persistent identity, structured learning, crash-proof memory, and protocols that force honest disagreement.
-
-Key milestones:
-- **May 27, 2026** — SPA/SPD framework invented (Ser Pensante Analógico + Ser Pensante Digital)
-- **July 2026** — NC Protocol, V3RA, FLUSH system, Immortality System
-- **August 2026** — Auto-capture plugin, semantic retrieval, 12 original skills
-- **Throughout** — 42 documented innovations, zero sycophancy, genuine partnership
-
-Every protocol was tested in real-world projects — building Chrome extensions, Flutter apps, SaaS architectures, and legal-tech tools. The system evolved through actual use, not theoretical design.
-
-The result: an AI that remembers, learns, disagrees when it should, and survives hardware failure.
-
-⭐ **If this story resonates, a star goes a long way!**
-💡 **Want to share your own story?** Open an issue — we'd love to hear how you use it.
-🔧 **Want to contribute?** Pull requests are welcome!
+3. Private files are protected by `.gitignore` and are never committed or pushed
+4. The backup script `backup-soul.ps1` uses `git add -u` (tracked files only) — never commits untracked files
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Feel free to open issues or pull requests on [GitHub](https://github.com/ClovisChProgrammer/evolving-coder-public).
+Contributions are welcome! Feel free to open issues or pull requests on [GitHub](https://github.com/ClovisChProgrammer/evolving-coder).
 
 ---
 

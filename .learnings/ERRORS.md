@@ -7,11 +7,11 @@ Registro de erros, falhas de integração e correções.
 **Logged**: 2026-07-04T18:50:00-03:00
 **Priority**: critical
 **Status**: resolved
-**Project**: project-example-4
+**Project**: QPEÇA
 **Area**: communication
 
 ### Summary
-KAI entrou em looping cego testando porta 3000 (frontend) repetidamente sem informar progresso ao usuário. the developer teve que interromper.
+KAI entrou em looping cego testando porta 3000 (frontend) repetidamente sem informar progresso ao usuário. Clóvis teve que interromper.
 
 ### Details
 - Testava `Invoke-WebRequest http://localhost:3000` sem reportar que estava tentando
@@ -37,7 +37,7 @@ Cada entrada segue o formato padrão de .learnings/.
 **Logged**: 2026-06-02T20:00:00-03:00
 **Priority**: high
 **Status**: promoted
-**Project**: project-example-5
+**Project**: Navinclud2026TCC
 **Area**: communication
 
 ### Summary
@@ -62,7 +62,7 @@ Pattern-Key: session-log-discipline
 **Logged**: 2026-07-17T15:44:00-03:00
 **Priority**: high
 **Status**: resolved
-**Project**: project-example-6
+**Project**: LexPilot
 **Area**: communication
 
 ### Summary
@@ -78,8 +78,8 @@ Versões anteriores do e-book prometiam 30 capítulos no escopo mas entregavam ~
 NUNCA inflar contagem de capítulos/seções para parecer mais impressionante. Entregar exatamente o que foi prometido, ou mais — nunca menos. Aplicar这个 padrão a todo output.
 
 ### Metadata
-Source: Análise adversarial do próprio produto — e-book project-example-6
-Related Files: /path/to/project/
+Source: Análise adversarial do próprio produto — e-book LexPilot
+Related Files: G:\Extensão\LexPilot\
 Tags: honesty, chapter-counting, marketing, integrity, critical
 Pattern-Key: honest-delivery-tracking
 
@@ -88,15 +88,15 @@ Pattern-Key: honest-delivery-tracking
 **Logged**: 2026-07-17T18:30:00-03:00
 **Priority**: medium
 **Status**: resolved
-**Project**: project-example-6
+**Project**: LexPilot
 **Area**: config
 
 ### Summary
 Dependências usadas no código mas não declaradas no pyproject.toml: `openai` (rag/embeddings.py) e `PyMuPDF` (pipeline/extractor.py). Poderiam causar `ModuleNotFoundError` em novo clone.
 
 ### Details
-- `openai` importado em `project-example-6/rag/embeddings.py` mas não em nenhum optional group
-- `PyMuPDF` (fitz) importado em `project-example-6/pipeline/extractor.py` mas não em nenhum optional group
+- `openai` importado em `lexpilot/rag/embeddings.py` mas não em nenhum optional group
+- `PyMuPDF` (fitz) importado em `lexpilot/pipeline/extractor.py` mas não em nenhum optional group
 - Grupo `llm` declara langchain mas nunca é importado no código
 - Grupo `vector` declara qdrant-client (usado corretamente)
 
@@ -105,9 +105,6 @@ Adicionar `openai` e `PyMuPDF` ao pyproject.toml (obrigatórias ou em group `cor
 
 ### Metadata
 Source: Gap analysis em 2026-07-17
-Related Files: pyproject.toml, project-example-6/rag/embeddings.py, project-example-6/pipeline/extractor.py
+Related Files: pyproject.toml, lexpilot/rag/embeddings.py, lexpilot/pipeline/extractor.py
 Tags: dependencies, pyproject, missing-deps, configuration
 Pattern-Key: dependency-audit
-
-
-

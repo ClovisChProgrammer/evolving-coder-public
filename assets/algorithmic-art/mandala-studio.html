@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mandala Studio — Sacred Geometry Generator v2</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+:root{
+--bg:#06060f;--s1:#0c0c1d;--s2:#12122a;--s3:#1a1a3a;--s4:#222244;
+--a1:#7c6aef;--a2:#a78bfa;--a3:#c084fc;
+--p1:#f472b6;--p2:#fb7185;
+--g1:#34d399;--g2:#6ee7b7;
+--txt:#e2e8f0;--dim:#64748b;--muted:#475569;
+--glow:rgba(124,106,239,0.25);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);overflow:hidden;height:100vh;display:flex}
+
+.sidebar{width:340px;min-width:340px;background:var(--s1);border-right:1px solid var(--s3);display:flex;flex-direction:column;height:100vh}
+.sidebar-header{padding:16px 16px 0}
+.sidebar-header h1{font-family:'Space Grotesk',sans-serif;font-size:20px;background:linear-gradient(135deg,var(--a1),var(--p1));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sidebar-header .sub{font-size:10px;color:var(--muted);margin-top:2px}
+.tabs{display:flex;border-bottom:1px solid var(--s3);padding:0 12px;margin-top:12px;gap:2px}
+.tab{padding:8px 9px;font-size:10px;font-weight:600;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase;letter-spacing:.8px;white-space:nowrap}
+.tab:hover{color:var(--txt)}
+.tab.active{color:var(--a2);border-color:var(--a1)}
+.tab-content{flex:1;overflow-y:auto;padding:12px 16px 16px}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.section{background:var(--s2);border:1px solid var(--s3);border-radius:10px;padding:12px;margin-bottom:10px}
+.section h3{font-size:11px;font-weight:600;color:var(--a2);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
+.field{margin-bottom:8px}.field:last-child{margin-bottom:0}
+.field label{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-bottom:3px}
+.field label span{color:var(--a2);font-weight:600}
+input[type=range]{width:100%;height:4px;-webkit-appearance:none;background:var(--s3);border-radius:2px;outline:none;margin:4px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--a1);cursor:pointer;box-shadow:0 0 6px var(--glow)}
+select{width:100%;background:var(--s3);color:var(--txt);border:1px solid var(--s3);border-radius:8px;padding:7px 10px;font-size:12px;outline:none;cursor:pointer}
+select:focus{border-color:var(--a1)}
+.color-grid{display:flex;gap:5px;flex-wrap:wrap}
+.swatch{width:26px;height:26px;border-radius:7px;border:2px solid transparent;cursor:pointer;transition:all .15s}
+.swatch:hover,.swatch.active{border-color:#fff;transform:scale(1.15)}
+.color-input{width:26px;height:26px;border:none;border-radius:7px;cursor:pointer;background:transparent;padding:0}
+.color-input::-webkit-color-swatch-wrapper{padding:0}
+.color-input::-webkit-color-swatch{border-radius:7px;border:2px solid var(--s3)}
+.btn{padding:9px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;border:none;width:100%;font-family:'Inter',sans-serif}
+.btn-primary{background:linear-gradient(135deg,var(--a1),var(--p1));color:#fff;box-shadow:0 3px 16px var(--glow)}
+.btn-primary:hover{transform:translateY(-1px)}
+.btn-ghost{background:transparent;border:1px solid var(--s3);color:var(--dim)}
+.btn-ghost:hover{border-color:var(--dim);color:var(--txt)}
+.btn-row{display:flex;gap:6px}.btn-row .btn{flex:1}
+.toggle{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;color:var(--dim);margin-bottom:6px}
+.toggle input{display:none}
+.toggle .track{width:34px;height:18px;background:var(--s3);border-radius:9px;position:relative;transition:all .2s;flex-shrink:0}
+.toggle .track::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:all .2s}
+.toggle input:checked+.track{background:var(--a1)}
+.toggle input:checked+.track::after{left:18px}
+.presets{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.preset{background:var(--s3);border:1px solid transparent;border-radius:7px;padding:6px 4px;text-align:center;cursor:pointer;font-size:10px;transition:all .15s}
+.preset:hover{border-color:var(--a1);background:rgba(124,106,239,0.1)}
+.preset .pi{font-size:16px}
+
+.canvas-area{flex:1;display:flex;align-items:center;justify-content:center;position:relative;background:radial-gradient(circle at center,var(--s2),var(--bg))}
+#mandala-svg{max-width:88vh;max-height:88vh;filter:drop-shadow(0 0 30px var(--glow))}
+.canvas-info{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted);background:rgba(6,6,15,0.8);padding:5px 12px;border-radius:6px;backdrop-filter:blur(6px)}
+
+/* Painting Canvas */
+#paint-canvas{position:absolute;inset:0;display:none;z-index:5;cursor:crosshair;pointer-events:none}
+#paint-canvas.active{pointer-events:auto}
+.paint-toolbar{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:none;z-index:10;background:rgba(12,12,29,0.95);border:1px solid var(--s3);border-radius:10px;padding:10px 16px;gap:10px;align-items:center;backdrop-filter:blur(8px)}
+.paint-toolbar.active{display:flex}
+.paint-color{width:28px;height:28px;border-radius:50%;border:2px solid #fff;cursor:pointer}
+.paint-color.active{box-shadow:0 0 0 3px var(--a1)}
+.paint-swatch{width:22px;height:22px;border-radius:6px;cursor:pointer;border:1px solid var(--s3)}
+.paint-swatch:hover{border-color:#fff}
+.paint-btn{background:var(--s3);border:none;color:var(--txt);padding:5px 10px;border-radius:6px;font-size:11px;cursor:pointer}
+.paint-btn:hover{background:var(--s4)}
+.paint-btn.active{background:var(--a1);color:#fff}
+
+/* Meditation */
+#med-overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(6,6,15,0.97);flex-direction:column;align-items:center;justify-content:center}
+#med-overlay.active{display:flex}
+#med-overlay h2{font-family:'Space Grotesk',sans-serif;font-size:26px;margin-bottom:6px;background:linear-gradient(135deg,var(--a1),var(--p1));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.med-sub{color:var(--dim);font-size:13px;margin-bottom:24px}
+#med-svg{max-width:65vh;max-height:55vh}
+.breathe-med{width:100px;height:100px;border-radius:50%;border:2px solid var(--a1);display:flex;align-items:center;justify-content:center;margin:20px auto;font-size:13px;color:var(--a2);transition:transform 4s ease-in-out,box-shadow 4s ease-in-out}
+.breathe-med.inhale{transform:scale(1.3);box-shadow:0 0 30px var(--glow)}
+.breathe-med.exhale{transform:scale(1)}
+.med-timer{font-family:'Space Grotesk',sans-serif;font-size:32px;color:var(--a2);margin-bottom:6px}
+.close-med{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--dim);font-size:22px;cursor:pointer}
+
+/* Animation Tab */
+.anim-ctrl{display:flex;gap:6px;margin-bottom:8px}
+.anim-ctrl .btn{font-size:10px;padding:6px 8px;flex:1}
+.anim-ctrl .btn.active{background:var(--a1);color:#fff;border-color:var(--a1)}
+.anim-group{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+.anim-pill{padding:4px 10px;border-radius:12px;font-size:10px;font-weight:600;border:1px solid var(--s3);color:var(--dim);cursor:pointer;transition:all .15s;background:transparent}
+.anim-pill:hover{border-color:var(--a2);color:var(--txt)}
+.anim-pill.active{background:var(--a1);color:#fff;border-color:var(--a1)}
+
+@media(max-width:800px){body{flex-direction:column}.sidebar{width:100%;min-width:0;height:45vh}.canvas-area{height:55vh}}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <h1>Mandala Studio</h1>
+    <div class="sub">Sacred geometry · v2 · kaleidoscope engine</div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('structure',this)">Structure</div>
+    <div class="tab" onclick="switchTab('pattern',this)">Pattern</div>
+    <div class="tab" onclick="switchTab('colors',this)">Colors</div>
+    <div class="tab" onclick="switchTab('modes',this)">Modes</div>
+    <div class="tab" onclick="switchTab('animation',this)">Anim</div>
+  </div>
+  <div class="tab-content">
+
+    <!-- ── STRUCTURE TAB ── -->
+    <div class="tab-panel active" id="tab-structure">
+      <div class="section">
+        <h3>Presets</h3>
+        <div class="presets" id="presets-grid"></div>
+      </div>
+      <div class="section">
+        <h3>Geometry</h3>
+        <div class="field"><label>Rings <span id="v-rings">7</span></label><input type="range" id="rings" min="2" max="14" value="7" oninput="gen()"></div>
+        <div class="field"><label>Symmetry <span id="v-sym">8</span></label><input type="range" id="symmetry" min="3" max="32" value="8" oninput="gen()"></div>
+        <div class="field"><label>Inner radius <span id="v-inner">12</span>%</label><input type="range" id="inner" min="3" max="30" value="12" oninput="gen()"></div>
+        <div class="field"><label>Complexity <span id="v-complexity">3</span></label><input type="range" id="complexity" min="1" max="5" value="3" oninput="gen()"></div>
+      </div>
+      <div class="section">
+        <h3>Borders</h3>
+        <div class="field"><label>Border pattern</label><select id="border-pattern" onchange="gen()">
+          <option value="dots">Dots</option><option value="lines">Radial lines</option>
+          <option value="diamonds">Mini diamonds</option><option value="none">None</option>
+        </select></div>
+        <div class="field"><label>Border density <span id="v-border-d">12</span></label><input type="range" id="border-density" min="4" max="48" value="12" oninput="gen()"></div>
+      </div>
+      <div class="section">
+        <h3>Frame Shape</h3>
+        <div class="field"><select id="frame-shape" onchange="applyFrame()">
+          <option value="circle">Circle (default)</option>
+          <option value="square">Square</option>
+          <option value="diamond">Diamond</option>
+          <option value="pentagon">Pentagon</option>
+          <option value="hexagon">Hexagon</option>
+          <option value="octagon">Octagon</option>
+        </select></div>
+      </div>
+    </div>
+
+    <!-- ── PATTERN TAB ── -->
+    <div class="tab-panel" id="tab-pattern">
+      <div class="section">
+        <h3>Ring Pattern</h3>
+        <div class="field"><select id="ring-pat" onchange="gen()">
+          <option value="petals">Petals</option><option value="lotus">Lotus (layered)</option>
+          <option value="diamonds">Diamonds</option><option value="dots">Dots</option>
+          <option value="arcs">Arcs</option><option value="triangles">Triangles</option>
+          <option value="waves">Waves</option><option value="zigzag">Zigzag</option>
+          <option value="weave">Weave (celtic)</option><option value="flame">Flame</option>
+          <option value="scales">Scales</option><option value="intricate">Intricate mix</option>
+        </select></div>
+      </div>
+      <div class="section">
+        <h3>Center</h3>
+        <div class="field"><select id="center-pat" onchange="gen()">
+          <option value="bindu">Bindu</option><option value="flower">Flower</option>
+          <option value="star">Star</option><option value="spiral">Spiral</option>
+          <option value="lotus-center">Lotus center</option><option value="om">Om</option>
+        </select></div>
+      </div>
+      <div class="section">
+        <h3>Detail</h3>
+        <div class="field"><label>Stroke <span id="v-stroke">1.2</span></label><input type="range" id="stroke" min="0.3" max="4" step="0.1" value="1.2" oninput="gen()"></div>
+        <div class="field"><label>Opacity <span id="v-opacity">0.75</span></label><input type="range" id="opacity" min="0.1" max="1" step="0.05" value="0.75" oninput="gen()"></div>
+        <div class="field"><label>Elements per ring <span id="v-elem">16</span></label><input type="range" id="elements" min="4" max="48" value="16" oninput="gen()"></div>
+      </div>
+    </div>
+
+    <!-- ── COLORS TAB ── -->
+    <div class="tab-panel" id="tab-colors">
+      <div class="section">
+        <h3>Palette</h3>
+        <div class="color-grid" id="palette-grid"></div>
+        <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
+          <input type="color" class="color-input" id="custom-c1" value="#7c6aef" onchange="setCustom()">
+          <input type="color" class="color-input" id="custom-c2" value="#f472b6" onchange="setCustom()">
+          <span style="font-size:10px;color:var(--muted)">Custom blend</span>
+        </div>
+      </div>
+      <div class="section">
+        <h3>HSL Controls</h3>
+        <div class="field"><label>Hue rotation <span id="v-hue">30</span>°</label><input type="range" id="hue-rot" min="0" max="360" value="30" oninput="gen()"></div>
+        <div class="field"><label>Saturation <span id="v-sat">70</span>%</label><input type="range" id="saturation" min="0" max="100" value="70" oninput="gen()"></div>
+        <div class="field"><label>Lightness <span id="v-light">55</span>%</label><input type="range" id="lightness" min="20" max="80" value="55" oninput="gen()"></div>
+      </div>
+      <div class="section">
+        <h3>Intensity</h3>
+        <div class="field"><select id="intensity" onchange="gen()">
+          <option value="vivid">Vivid</option><option value="pastel">Pastel</option>
+          <option value="muted">Muted</option><option value="deep">Deep</option>
+          <option value="neon">Neon</option><option value="earth">Earth</option>
+        </select></div>
+      </div>
+      <div class="section">
+        <h3>Background</h3>
+        <div class="color-grid" id="bg-grid"></div>
+        <input type="color" class="color-input" style="margin-top:6px" value="#0c0c1d" onchange="bgColor=this.value;gen()">
+      </div>
+    </div>
+
+    <!-- ── MODES TAB ── -->
+    <div class="tab-panel" id="tab-modes">
+      <div class="section">
+        <h3>Display</h3>
+        <label class="toggle"><input type="checkbox" id="coloring-mode" onchange="togglePainting()"><div class="track"></div>Coloring / Paint mode</label>
+        <label class="toggle"><input type="checkbox" id="animate-draw" onchange="gen()"><div class="track"></div>Animate drawing</label>
+        <label class="toggle"><input type="checkbox" id="mirror-sym" onchange="gen()"><div class="track"></div>Mirror symmetry</label>
+      </div>
+      <div class="section">
+        <h3>Kaleidoscope</h3>
+        <label class="toggle"><input type="checkbox" id="kaleidoscope" onchange="gen()"><div class="track"></div>Kaleidoscope mode</label>
+        <div class="field"><label>Mirror segments <span id="v-mseg">6</span></label><input type="range" id="mirror-seg" min="2" max="16" value="6" oninput="gen()"></div>
+        <div class="field"><label>Phase offset <span id="v-phase">15</span>°</label><input type="range" id="phase-offset" min="0" max="90" value="15" oninput="gen()"></div>
+        <div class="field"><label>Variation <span id="v-variation">20</span>%</label><input type="range" id="variation" min="0" max="50" value="20" oninput="gen()"></div>
+      </div>
+      <div class="section">
+        <h3>Actions</h3>
+        <button class="btn btn-primary" onclick="startMeditation()" style="margin-bottom:6px">🧘 Meditation</button>
+        <div class="btn-row" style="margin-bottom:6px">
+          <button class="btn btn-ghost" onclick="exportSVG()">SVG</button>
+          <button class="btn btn-ghost" onclick="exportPNG()">PNG</button>
+        </div>
+        <button class="btn btn-ghost" onclick="randomize()">🎲 Randomize</button>
+      </div>
+    </div>
+
+    <!-- ── ANIMATION TAB ── -->
+    <div class="tab-panel" id="tab-animation">
+      <div class="section">
+        <h3>Passive</h3>
+        <div class="anim-group" id="anim-rotate-group">
+          <div class="anim-pill active" onclick="setAnimProp('rotateDir',1,this)">↻ Rotate Right</div>
+          <div class="anim-pill" onclick="setAnimProp('rotateDir',-1,this)">↺ Rotate Left</div>
+          <div class="anim-pill" onclick="setAnimProp('rotateDir',0,this)">⊘ None</div>
+        </div>
+        <div class="field"><label>Rotate speed <span id="v-aspeed">1.0</span>x</label><input type="range" id="anim-rotate-speed" min="0" max="50" value="10" oninput="animState.rotateSpeed=this.value/10;document.getElementById('v-aspeed').textContent=(this.value/10).toFixed(1)"></div>
+        <div class="anim-group" id="anim-pulse-group">
+          <div class="anim-pill active" onclick="setAnimPulse(true,this)">◉ Pulse/Zoom</div>
+          <div class="anim-pill" onclick="setAnimPulse(false,this)">⊘ None</div>
+        </div>
+        <div class="field"><label>Pulse intensity <span id="v-apulse">0.5</span></label><input type="range" id="anim-pulse-int" min="0" max="30" value="15" oninput="animState.pulseIntensity=this.value/30;document.getElementById('v-apulse').textContent=(this.value/30).toFixed(2)"></div>
+        <div class="field"><label>Pulse speed <span id="v-apspeed">1.0</span>x</label><input type="range" id="anim-pulse-speed" min="1" max="30" value="10" oninput="animState.pulseSpeed=this.value/10;document.getElementById('v-apspeed').textContent=(this.value/10).toFixed(1)"></div>
+      </div>
+
+      <div class="section">
+        <h3>Color Wave</h3>
+        <div class="anim-group" id="anim-cdir-group">
+          <div class="anim-pill active" onclick="setAnimColorDir('center-out',this)">Center → Out</div>
+          <div class="anim-pill" onclick="setAnimColorDir('out-center',this)">Out → Center</div>
+          <div class="anim-pill" onclick="setAnimColorDir('random',this)">🎲 Random</div>
+        </div>
+        <div class="field"><label>Color speed <span id="v-acspeed">1.0</span>x</label><input type="range" id="anim-color-speed" min="1" max="30" value="10" oninput="animState.colorSpeed=this.value/10;document.getElementById('v-acspeed').textContent=(this.value/10).toFixed(1)"></div>
+        <div class="field"><label>Color intensity <span id="v-acint">0.5</span></label><input type="range" id="anim-color-int" min="0" max="30" value="15" oninput="animState.colorIntensity=this.value/30;document.getElementById('v-acint').textContent=(this.value/30).toFixed(2)"></div>
+        <label class="toggle"><input type="checkbox" id="anim-color-active" onchange="animState.colorWave=this.checked"><div class="track"></div>Active</label>
+      </div>
+
+      <div class="section">
+        <h3>Inverse Mode</h3>
+        <div style="margin-bottom:6px">
+          <div style="font-size:10px;color:var(--dim);margin-bottom:4px">Colors direction</div>
+          <div class="anim-group" id="anim-inv-col-group">
+            <div class="anim-pill active" onclick="animState.colorInverseDir='center-out';setActivePill(this)">Center → Out</div>
+            <div class="anim-pill" onclick="animState.colorInverseDir='out-center';setActivePill(this)">Out → Center</div>
+          </div>
+        </div>
+        <div style="margin-bottom:6px">
+          <div style="font-size:10px;color:var(--dim);margin-bottom:4px">Shapes direction</div>
+          <div class="anim-group" id="anim-inv-shp-group">
+            <div class="anim-pill active" onclick="animState.shapeInverseDir='out-center';setActivePill(this)">Out → Center</div>
+            <div class="anim-pill" onclick="animState.shapeInverseDir='center-out';setActivePill(this)">Center → Out</div>
+          </div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="anim-inverse-active" onchange="animState.inverseActive=this.checked"><div class="track"></div>Active</label>
+      </div>
+
+      <div class="section">
+        <h3>Sync Meditation</h3>
+        <label class="toggle"><input type="checkbox" id="anim-sync-hz" onchange="animState.syncHz=this.checked"><div class="track"></div>Sync to meditation Hz</label>
+        <div class="field"><label>Hz multiplier <span id="v-ahz">1.5</span>x</label><input type="range" id="anim-hz-mult" min="1" max="50" value="15" oninput="animState.hzMult=this.value/10;document.getElementById('v-ahz').textContent=(this.value/10).toFixed(1)"></div>
+        <div style="font-size:9px;color:var(--muted);margin-top:2px">Rotation speed × multiplier = binaural Hz. E.g.: 1.0x rot × 1.5 mult = 1.5 Hz (Theta)</div>
+      </div>
+
+      <div class="section">
+        <h3>Controls</h3>
+        <button class="btn btn-primary" onclick="startAnim()" style="margin-bottom:6px">▶ Play All</button>
+        <button class="btn btn-ghost" onclick="stopAnim()" style="margin-bottom:6px">⏹ Stop All</button>
+        <button class="btn btn-ghost" onclick="fullRandom()">🎲 Full Random</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="canvas-area">
+  <svg id="mandala-svg" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg"></svg>
+  <canvas id="paint-canvas"></canvas>
+  <div class="paint-toolbar" id="paint-toolbar">
+    <div class="paint-color active" id="paint-cur" style="background:#e74c3c" onclick="document.getElementById('paint-pick').click()"></div>
+    <input type="color" id="paint-pick" style="display:none" value="#e74c3c" onchange="setPaintColor(this.value)">
+    <div id="paint-swatches"></div>
+    <div style="width:1px;height:20px;background:var(--s3)"></div>
+    <button class="paint-btn" onclick="paintUndo()">↩</button>
+    <button class="paint-btn" onclick="paintRedo()">↪</button>
+    <button class="paint-btn" onclick="clearPaint()">🗑</button>
+    <button class="paint-btn" onclick="togglePainting()">Done</button>
+  </div>
+  <div class="canvas-info" id="canvas-info">Loading...</div>
+</div>
+
+<div id="med-overlay">
+  <button class="close-med" onclick="closeMed()">✕</button>
+  <h2>Meditation</h2>
+  <div class="med-sub">Observe from outer ring to center. Breathe deeply.</div>
+  <svg id="med-svg" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg"></svg>
+  <div class="breathe-med" id="med-breathe">Breathe</div>
+  <div class="med-timer" id="med-timer">5:00</div>
+  <div style="display:flex;gap:8px;margin-bottom:10px">
+    <button class="btn btn-primary" id="med-pause-btn" style="width:auto;padding:8px 20px" onclick="toggleMedAnim()">⏸ Pause</button>
+    <button class="btn btn-ghost" style="width:auto;padding:8px 20px" onclick="closeMed()">End Session</button>
+  </div>
+  <div class="section" style="background:var(--s2);border:1px solid var(--s3);border-radius:10px;padding:10px 14px;width:320px;max-width:90vw">
+    <h3 style="font-size:10px;font-weight:600;color:var(--a2);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Binaural Beats</h3>
+    <div class="field"><label style="display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-bottom:3px">Beat frequency <span id="v-med-beat" style="color:var(--a2);font-weight:600">6.0</span> Hz</label><input type="range" id="med-beat-freq" min="1" max="400" value="60" oninput="updateMedBinaural()" style="width:100%;height:4px;-webkit-appearance:none;background:var(--s3);border-radius:2px;outline:none;margin:4px 0"></div>
+    <div class="field"><label style="display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-bottom:3px">Base tone <span id="v-med-base" style="color:var(--a2);font-weight:600">200</span> Hz</label><input type="range" id="med-base-freq" min="80" max="600" value="200" oninput="updateMedBinaural()" style="width:100%;height:4px;-webkit-appearance:none;background:var(--s3);border-radius:2px;outline:none;margin:4px 0"></div>
+    <div class="field"><label style="display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-bottom:3px">Volume <span id="v-med-vol" style="color:var(--a2);font-weight:600">12</span>%</label><input type="range" id="med-volume" min="0" max="50" value="12" oninput="updateMedBinaural()" style="width:100%;height:4px;-webkit-appearance:none;background:var(--s3);border-radius:2px;outline:none;margin:4px 0"></div>
+    <div style="font-size:9px;color:var(--muted);margin-top:4px;text-align:center" id="med-beat-label">Theta · Deep relaxation</div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// COLOR SYSTEM
+// ═══════════════════════════════════════════════════════════════
+const PALETTES={
+  vivid:{h:[0,30,60,120,180,240,300],s:85,l:55,name:'Vivid'},
+  pastel:{h:[0,30,60,120,180,240,300],s:45,l:78,name:'Pastel'},
+  warm:{h:[0,15,30,45,60],s:75,l:55,name:'Warm'},
+  cool:{h:[180,200,220,240,270],s:65,l:55,name:'Cool'},
+  earth:{h:[15,30,60,90,120],s:45,l:45,name:'Earth'},
+  jewel:{h:[350,150,220,280,320],s:80,l:50,name:'Jewel'},
+  sunset:{h:[340,10,25,40,55],s:80,l:55,name:'Sunset'},
+  ocean:{h:[190,200,210,220,240],s:70,l:50,name:'Ocean'},
+  forest:{h:[100,120,140,60,45],s:55,l:42,name:'Forest'},
+  neon:{h:[300,120,180,60,30],s:100,l:55,name:'Neon'},
+  mono:{h:[0],s:0,l:55,name:'Monochrome'},
+  rainbow:{h:[0,30,60,90,120,150,180,210,240,270,300,330],s:75,l:55,name:'Rainbow'},
+};
+const INTENSITY={vivid:{s:85,l:55},pastel:{s:45,l:78},muted:{s:35,l:50},deep:{s:60,l:35},neon:{s:100,l:55},earth:{s:40,l:42}};
+let currentPalette='vivid',bgColor='#0c0c1d',customBlend=null;
+
+function hsl(h,s,l,a){
+  return a!==undefined?`hsla(${h},${s}%,${l}%,${a})`:`hsl(${h},${s}%,${l}%)`;
+}
+
+function getColor(ringIdx,totalRings){
+  let pal=customBlend||PALETTES[currentPalette]||PALETTES.vivid;
+  let hueRot=parseInt(document.getElementById('hue-rot').value);
+  let satBase=parseInt(document.getElementById('saturation').value);
+  let lightBase=parseInt(document.getElementById('lightness').value);
+  let inten=INTENSITY[document.getElementById('intensity').value]||INTENSITY.vivid;
+  let hArr=pal.h;
+  let baseH=(hArr[ringIdx%hArr.length]+hueRot*ringIdx/totalRings)%360;
+  let s=Math.min(100,satBase*inten.s/70);
+  let l=Math.min(90,Math.max(15,lightBase*inten.l/55));
+  return{h:baseH,s:l>70?Math.max(20,s-15):s,l:l};
+}
+
+function getColorStr(ringIdx,totalRings,alpha){
+  let c=getColor(ringIdx,totalRings);
+  return alpha!==undefined?hsl(c.h,c.s,c.l,alpha):hsl(c.h,c.s,c.l);
+}
+
+function getColorVar(ringIdx,totalRings,elIdx,totalEl){
+  let c=getColor(ringIdx,totalRings);
+  let variation=parseInt(document.getElementById('variation').value)||0;
+  let offset=totalEl>1?(elIdx/totalEl)*variation:0;
+  return hsl((c.h+offset)%360,Math.max(10,c.s-variation*0.3),Math.min(90,c.l+offset*0.5));
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+const CX=250,CY=250,R=235;
+let drawProgress=1,animFrame=null;
+let paintMode=false,paintHistory=[],paintRedoStack=[],paintColor='#e74c3c';
+let medTimer=null,medTime=300,medBreatheInt=null,medAnimId=null;
+
+// Animation state
+let animState={
+  rotating:false,rotateDir:1,rotateSpeed:1,
+  pulsing:false,pulseIntensity:0.5,pulseSpeed:1,
+  colorWave:false,colorDir:'center-out',colorSpeed:1,colorIntensity:0.5,
+  inverseActive:false,colorInverseDir:'center-out',shapeInverseDir:'out-center',
+  playing:false,startTime:0,animFrame:null,
+  syncHz:false,hzMult:1.5
+};
+let animId=null;
+
+// ═══════════════════════════════════════════════════════════════
+// PRESETS
+// ═══════════════════════════════════════════════════════════════
+const PRESETS={
+  tibetan:{r:8,sym:8,inner:12,elem:16,pat:'lotus',center:'bindu',pal:'jewel',stroke:1.2,opacity:.75,bg:'#0c0c1d',hue:30,sat:70,light:50,intensity:'deep',border:'dots',borderD:16,complexity:4,kaleidoscope:false},
+  lotus:{r:7,sym:12,inner:10,elem:24,pat:'lotus',center:'lotus-center',pal:'sunset',stroke:1,opacity:.7,bg:'#1a0a1a',hue:15,sat:75,light:55,intensity:'vivid',border:'lines',borderD:24,complexity:4,kaleidoscope:false},
+  star:{r:6,sym:6,inner:15,elem:12,pat:'triangles',center:'star',pal:'warm',stroke:1.5,opacity:.8,bg:'#0a0a0a',hue:0,sat:80,light:50,intensity:'vivid',border:'diamonds',borderD:12,complexity:3,kaleidoscope:false},
+  celtic:{r:5,sym:8,inner:18,elem:8,pat:'weave',center:'spiral',pal:'forest',stroke:2,opacity:.7,bg:'#0a1a0a',hue:90,sat:50,light:45,intensity:'earth',border:'lines',borderD:8,complexity:3,kaleidoscope:false},
+  kaleidoscope:{r:8,sym:16,inner:8,elem:20,pat:'intricate',center:'flower',pal:'rainbow',stroke:0.8,opacity:.65,bg:'#06060f',hue:0,sat:75,light:55,intensity:'vivid',border:'dots',borderD:20,complexity:5,kaleidoscope:true,mirrorSeg:8,phase:20,variation:25},
+  flower:{r:6,sym:16,inner:8,elem:32,pat:'petals',center:'flower',pal:'pastel',stroke:0.8,opacity:.6,bg:'#faf5ff',hue:300,sat:45,light:78,intensity:'pastel',border:'dots',borderD:32,complexity:3,kaleidoscope:false},
+  geometric:{r:8,sym:4,inner:15,elem:8,pat:'diamonds',center:'bindu',pal:'mono',stroke:1.8,opacity:.85,bg:'#ffffff',hue:0,sat:0,light:35,intensity:'muted',border:'diamonds',borderD:8,complexity:4,kaleidoscope:false},
+  ocean:{r:7,sym:10,inner:10,elem:20,pat:'waves',center:'spiral',pal:'ocean',stroke:1,opacity:.7,bg:'#041020',hue:200,sat:70,light:50,intensity:'deep',border:'dots',borderD:20,complexity:4,kaleidoscope:false},
+  flame:{r:6,sym:12,inner:10,elem:18,pat:'flame',center:'star',pal:'sunset',stroke:1.2,opacity:.75,bg:'#100400',hue:0,sat:85,light:50,intensity:'vivid',border:'lines',borderD:18,complexity:4,kaleidoscope:false},
+  neon:{r:7,sym:12,inner:10,elem:24,pat:'scales',center:'spiral',pal:'neon',stroke:1,opacity:.7,bg:'#000000',hue:60,sat:100,light:55,intensity:'neon',border:'dots',borderD:24,complexity:4,kaleidoscope:true,mirrorSeg:6,phase:10,variation:15},
+  minimal:{r:3,sym:6,inner:25,elem:6,pat:'dots',center:'bindu',pal:'mono',stroke:1,opacity:.5,bg:'#ffffff',hue:0,sat:0,light:40,intensity:'muted',border:'none',borderD:6,complexity:1,kaleidoscope:false},
+  sacred:{r:9,sym:8,inner:8,elem:16,pat:'intricate',center:'om',pal:'jewel',stroke:1,opacity:.7,bg:'#0a0818',hue:270,sat:65,light:50,intensity:'deep',border:'diamonds',borderD:16,complexity:5,kaleidoscope:false},
+};
+
+function applyPreset(k){
+  let p=PRESETS[k];if(!p)return;
+  document.getElementById('rings').value=p.r;
+  document.getElementById('symmetry').value=p.sym;
+  document.getElementById('inner').value=p.inner;
+  document.getElementById('elements').value=p.elem;
+  document.getElementById('ring-pat').value=p.pat;
+  document.getElementById('center-pat').value=p.center;
+  document.getElementById('stroke').value=p.stroke;
+  document.getElementById('opacity').value=p.opacity;
+  document.getElementById('hue-rot').value=p.hue;
+  document.getElementById('saturation').value=p.sat;
+  document.getElementById('lightness').value=p.light;
+  document.getElementById('intensity').value=p.intensity;
+  document.getElementById('border-pattern').value=p.border;
+  document.getElementById('border-density').value=p.borderD;
+  document.getElementById('complexity').value=p.complexity;
+  document.getElementById('kaleidoscope').checked=!!p.kaleidoscope;
+  if(p.mirrorSeg)document.getElementById('mirror-seg').value=p.mirrorSeg;
+  if(p.phase)document.getElementById('phase-offset').value=p.phase;
+  if(p.variation)document.getElementById('variation').value=p.variation;
+  bgColor=p.bg;
+  setPalette(p.pal);
+  drawProgress=0;
+  gen();
+}
+
+function randomize(){
+  let pals=Object.keys(PALETTES);
+  let pats=['petals','lotus','diamonds','dots','arcs','triangles','waves','zigzag','weave','flame','scales','intricate'];
+  let cents=['bindu','flower','star','spiral','lotus-center'];
+  let bords=['dots','lines','diamonds','none'];
+  let ints=['vivid','pastel','muted','deep','neon','earth'];
+  document.getElementById('rings').value=3+Math.floor(Math.random()*10);
+  document.getElementById('symmetry').value=[4,6,8,10,12,16,20][Math.floor(Math.random()*7)];
+  document.getElementById('inner').value=5+Math.floor(Math.random()*22);
+  document.getElementById('elements').value=[8,12,16,20,24,32][Math.floor(Math.random()*6)];
+  document.getElementById('ring-pat').value=pats[Math.floor(Math.random()*pats.length)];
+  document.getElementById('center-pat').value=cents[Math.floor(Math.random()*cents.length)];
+  document.getElementById('border-pattern').value=bords[Math.floor(Math.random()*bords.length)];
+  document.getElementById('border-density').value=6+Math.floor(Math.random()*30);
+  document.getElementById('complexity').value=1+Math.floor(Math.random()*5);
+  document.getElementById('hue-rot').value=Math.floor(Math.random()*360);
+  document.getElementById('saturation').value=40+Math.floor(Math.random()*60);
+  document.getElementById('lightness').value=35+Math.floor(Math.random()*40);
+  document.getElementById('intensity').value=ints[Math.floor(Math.random()*ints.length)];
+  document.getElementById('kaleidoscope').checked=Math.random()>.65;
+  document.getElementById('mirror-seg').value=3+Math.floor(Math.random()*12);
+  document.getElementById('phase-offset').value=Math.floor(Math.random()*60);
+  document.getElementById('variation').value=Math.floor(Math.random()*40);
+  bgColor=['#0c0c1d','#0a0a0a','#100400','#041020','#0a0818','#faf5ff','#ffffff','#000000'][Math.floor(Math.random()*8)];
+  setPalette(pals[Math.floor(Math.random()*pals.length)]);
+  drawProgress=0;gen();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════════════════════════════
+function switchTab(name,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+function setPalette(name){currentPalette=name;customBlend=null;
+  document.querySelectorAll('#palette-grid .swatch').forEach(s=>s.classList.toggle('active',s.dataset.pal===name));gen();}
+function setCustom(){
+  customBlend={h:[0,60,120,180,240,300],s:70,l:55};
+  document.querySelectorAll('#palette-grid .swatch').forEach(s=>s.classList.remove('active'));gen();}
+
+function updateLabels(){
+  ['rings','symmetry','inner','complexity','stroke','opacity','elements','hue-rot','saturation','lightness','mirror-seg','phase-offset','variation','border-density'].forEach(id=>{
+    let el=document.getElementById(id);if(!el)return;
+    let vEl=document.getElementById('v-'+id.replace('-','-'));
+    if(!vEl){let map={rings:'v-rings',symmetry:'v-sym',inner:'v-inner',complexity:'v-complexity',stroke:'v-stroke',opacity:'v-opacity',elements:'v-elem','hue-rot':'v-hue',saturation:'v-sat',lightness:'v-light','mirror-seg':'v-mseg','phase-offset':'v-phase',variation:'v-variation','border-density':'v-border-d'};
+      vEl=document.getElementById(map[id])}
+    if(vEl)vEl.textContent=el.value});
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MANDALA GENERATOR
+// ═══════════════════════════════════════════════════════════════
+function gen(target){
+  updateLabels();
+  let svg=target||document.getElementById('mandala-svg');
+  let nR=parseInt(document.getElementById('rings').value);
+  let sym=parseInt(document.getElementById('symmetry').value);
+  let innerP=parseInt(document.getElementById('inner').value)/100;
+  let elem=parseInt(document.getElementById('elements').value);
+  let sw=parseFloat(document.getElementById('stroke').value);
+  let op=parseFloat(document.getElementById('opacity').value);
+  let pat=document.getElementById('ring-pat').value;
+  let center=document.getElementById('center-pat').value;
+  let borderPat=document.getElementById('border-pattern').value;
+  let borderD=parseInt(document.getElementById('border-density').value);
+  let complexity=parseInt(document.getElementById('complexity').value);
+  let kalei=document.getElementById('kaleidoscope').checked;
+  let mirrorSeg=parseInt(document.getElementById('mirror-seg').value);
+  let phaseOff=parseInt(document.getElementById('phase-offset').value)*Math.PI/180;
+  let variation=parseInt(document.getElementById('variation').value)/100;
+  let coloring=document.getElementById('coloring-mode').checked;
+
+  let defs='<defs>';
+  // Gradient defs
+  for(let i=0;i<nR;i++){
+    let c1=getColor(i,nR),c2=getColor((i+1)%nR,nR);
+    defs+=`<linearGradient id="rg${i}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${hsl(c1.h,c1.s,c1.l)}"/><stop offset="100%" stop-color="${hsl(c2.h,c2.s,c2.l)}"/></linearGradient>`;
+    defs+=`<radialGradient id="rrg${i}"><stop offset="0%" stop-color="${hsl(c1.h,c1.s,Math.min(90,c1.l+15))}"/><stop offset="100%" stop-color="${hsl(c2.h,c2.s,c2.l)}"/></radialGradient>`;
+  }
+  defs+='</defs>';
+
+  let h=defs;
+  h+=`<rect width="500" height="500" fill="${bgColor}"/>`;
+  h+=`<g id="mandala-group" transform="translate(${CX},${CY})">`;
+  h+=`<g id="mandala-rotate">`;
+
+  // Concentric guide rings (subtle) — follow frame shape
+  let fShape=getFrameShape();
+  for(let i=1;i<=nR;i++){
+    let r=R*(0.95)*(i/nR);
+    if(fShape==='circle'){
+      h+=`<circle cx="0" cy="0" r="${r.toFixed(1)}" fill="none" stroke="${getColorStr(i-1,nR,0.08)}" stroke-width="0.5"/>`;
+    }else{
+      // Draw polygon guide ring
+      let pts=[];let sides={square:4,diamond:4,pentagon:5,hexagon:6,octagon:8};
+      let n=sides[fShape]||4;let rot=fShape==='diamond'?Math.PI/4:fShape==='octagon'?Math.PI/8:fShape==='pentagon'?-Math.PI/2:0;
+      for(let j=0;j<=n;j++){let a=Math.PI*2/n*j+rot;pts.push(`${(Math.cos(a)*r).toFixed(1)},${(Math.sin(a)*r).toFixed(1)}`);}
+      h+=`<polygon points="${pts.join(' ')}" fill="none" stroke="${getColorStr(i-1,nR,0.08)}" stroke-width="0.5"/>`;
+    }
+  }
+
+  // Pattern rings
+  for(let ring=0;ring<nR;ring++){
+    let rIn=R*innerP+(R*(1-innerP))*(ring/nR);
+    let rOut=R*innerP+(R*(1-innerP))*((ring+1)/nR);
+    let rMid=(rIn+rOut)/2;
+    let ringSym=(ring%2===0)?sym:Math.min(sym*2,48);
+    let nElem=Math.max(4,Math.round(elem*(ringSym/sym)));
+    let phase=kalei?phaseOff*ring:0;
+    let ringVar=kalei?variation:0;
+    // Kaleidoscope: multiply elements by mirror segments, alternating phase per segment
+    if(kalei&&mirrorSeg>1){
+      nElem=Math.max(4,Math.round(nElem*mirrorSeg*0.5));
+      phase+=((ring%mirrorSeg)/mirrorSeg)*phaseOff*2;
+      ringVar=Math.min(ringVar*1.5,0.5);
+    }
+
+    // Wrap ring in group for animation targeting
+    h+=`<g id="ring-${ring}" data-ring="${ring}">`;
+
+    // Generate pattern
+    h+=drawPattern(pat,ring,rIn,rOut,rMid,nElem,complexity,coloring,sw,op,phase,ringVar,fShape,R);
+
+    // Decorative border
+    if(borderPat!=='none'){
+      h+=drawBorder(borderPat,rOut,borderD,ring,coloring,sw,op);
+    }
+
+    h+=`</g>`;
+  }
+
+  // Center
+  h+=`<g id="ring-center">`;
+  h+=drawCenter(center,nR,complexity,coloring,sw,op,R*innerP);
+  h+=`</g>`;
+
+  // Outer border — follow frame shape
+  let obR=R*0.95;
+  if(fShape==='circle'){
+    h+=`<circle cx="0" cy="0" r="${obR}" fill="none" stroke="${getColorStr(0,nR)}" stroke-width="${sw*1.5}" opacity="${op}"/>`;
+  }else{
+    let pts=[];let sides={square:4,diamond:4,pentagon:5,hexagon:6,octagon:8};
+    let n=sides[fShape]||4;let rot=fShape==='diamond'?Math.PI/4:fShape==='octagon'?Math.PI/8:fShape==='pentagon'?-Math.PI/2:0;
+    for(let j=0;j<=n;j++){let a=Math.PI*2/n*j+rot;pts.push(`${(Math.cos(a)*obR).toFixed(1)},${(Math.sin(a)*obR).toFixed(1)}`);}
+    h+=`<polygon points="${pts.join(' ')}" fill="none" stroke="${getColorStr(0,nR)}" stroke-width="${sw*1.5}" opacity="${op}"/>`;
+  }
+
+  h+=`</g>`; // close mandala-rotate
+  h+=`</g>`; // close mandala-group
+  svg.innerHTML=h;
+
+  document.getElementById('canvas-info').textContent=
+    `${nR} rings · ${sym}-fold · ${pat} · ${currentPalette}${kalei?' · kaleidoscope':''}`;
+
+  // Animate
+  if(document.getElementById('animate-draw').checked&&drawProgress<1){
+    svg.style.clipPath=`circle(${drawProgress*50}% at 50% 50%)`;
+    drawProgress+=0.012;
+    animFrame=requestAnimationFrame(()=>gen(target));
+  }else{
+    drawProgress=1;cancelAnimationFrame(animFrame);
+    applyFrame(); // restore frame shape after draw animation
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FRAME SHAPES
+// ═══════════════════════════════════════════════════════════════
+function getFrameShape(){
+  return document.getElementById('frame-shape').value;
+}
+
+// Maps a polar coordinate to the frame polygon perimeter
+// Returns the radius at angle 'a' for the given shape
+function frameRadius(a,shape,maxR){
+  if(shape==='circle')return maxR;
+  let sides={square:4,diamond:4,pentagon:5,hexagon:6,octagon:8};
+  let n=sides[shape]||4;
+  let rot=shape==='diamond'?Math.PI/4:shape==='octagon'?Math.PI/8:shape==='pentagon'?-Math.PI/2:0;
+  let halfAngle=Math.PI/n;
+  let cosA=Math.cos(halfAngle);
+  // Distance from center to edge at angle a (relative to polygon orientation)
+  let angle=((a+rot)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);
+  let sector=angle%(Math.PI*2/n);
+  return maxR*cosA/Math.cos(sector-halfAngle);
+}
+
+// Convert polar to cartesian, respecting frame shape
+function frameXY(r,a,shape,maxR){
+  let fr=frameRadius(a,shape,maxR);
+  let mapped=r<=0?0:r*fr/maxR;
+  return{x:Math.cos(a)*mapped,y:Math.sin(a)*mapped};
+}
+
+function applyFrame(){
+  let shape=document.getElementById('frame-shape').value;
+  let svg=document.getElementById('mandala-svg');
+  let R=47; // radius as % of viewBox (235/500*100)
+  let C=50; // center as %
+  let clip='';
+  switch(shape){
+    case'circle':
+      clip=`circle(${R}% at ${C}% ${C}%)`;break;
+    case'square':{
+      let m=R*0.85;
+      clip=`polygon(${(C-m)}% ${(C-m)}%, ${(C+m)}% ${(C-m)}%, ${(C+m)}% ${(C+m)}%, ${(C-m)}% ${(C+m)}%)`;break;}
+    case'diamond':{
+      let m=R*0.9;
+      clip=`polygon(${C}% ${(C-m)}%, ${(C+m)}% ${C}%, ${C}% ${(C+m)}%, ${(C-m)}% ${C}%)`;break;}
+    case'pentagon':{
+      let pts=[];for(let i=0;i<5;i++){let a=Math.PI*2/5*i-Math.PI/2;pts.push(`${(C+R*Math.cos(a)).toFixed(1)}% ${(C+R*Math.sin(a)).toFixed(1)}%`);}
+      clip='polygon('+pts.join(', ')+')';break;}
+    case'hexagon':{
+      let pts=[];for(let i=0;i<6;i++){let a=Math.PI*2/6*i;pts.push(`${(C+R*Math.cos(a)).toFixed(1)}% ${(C+R*Math.sin(a)).toFixed(1)}%`);}
+      clip='polygon('+pts.join(', ')+')';break;}
+    case'octagon':{
+      let pts=[];for(let i=0;i<8;i++){let a=Math.PI*2/8*i-Math.PI/8;pts.push(`${(C+R*Math.cos(a)).toFixed(1)}% ${(C+R*Math.sin(a)).toFixed(1)}%`);}
+      clip='polygon('+pts.join(', ')+')';break;}
+  }
+  svg.style.clipPath=clip;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ANIMATION ENGINE
+// ═══════════════════════════════════════════════════════════════
+function setActivePill(el){
+  el.parentElement.querySelectorAll('.anim-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+}
+function setAnimProp(prop,val,el){
+  animState[prop]=val;setActivePill(el);
+}
+function setAnimPulse(on,el){
+  animState.pulsing=on;setActivePill(el);
+}
+function setAnimColorDir(dir,el){
+  animState.colorDir=dir;setActivePill(el);
+}
+
+function getAnimHz(){
+  if(animState.syncHz){
+    // Hz derived from rotation speed × multiplier
+    return animState.rotateSpeed*animState.hzMult;
+  }
+  return 1;
+}
+
+function animLoop(t){
+  if(!animState.playing)return;
+  let elapsed=(t-animState.startTime)/1000;
+  let svg=document.getElementById('mandala-svg');
+  let group=document.getElementById('mandala-group');
+  let hz=getAnimHz();
+  let nR=parseInt(document.getElementById('rings').value);
+
+  // 1. Overall rotation + pulse — SVG transform (reliable centering)
+  let rot=0;
+  if(animState.rotating&&animState.rotateDir!==0){
+    rot=elapsed*60*animState.rotateSpeed*animState.rotateDir*hz;
+  }
+  let scale=1;
+  if(animState.pulsing){
+    let freq=animState.pulseSpeed*hz;
+    scale=1+Math.sin(elapsed*freq*2)*0.12*animState.pulseIntensity;
+  }
+  if(group){
+    group.setAttribute('transform',`translate(${CX},${CY}) rotate(${rot.toFixed(2)}) scale(${scale.toFixed(4)})`);
+  }
+
+  // 2. Per-ring independent rotation (kaleidoscope layer effect)
+  for(let ring=0;ring<nR;ring++){
+    let ringEl=svg.querySelector(`#ring-${ring}`);
+    if(!ringEl)continue;
+    let ringDir=(ring%2===0)?1:-1;
+    let ringSpeed=0.3+ring*0.15;
+    let ringRot=elapsed*ringSpeed*ringDir*hz*animState.rotateSpeed*0.4;
+    ringEl.style.transformOrigin='0px 0px';
+    if(animState.rotating&&animState.rotateDir!==0){
+      ringEl.style.transform=`rotate(${ringRot.toFixed(2)}deg)`;
+    }else{
+      ringEl.style.transform='';
+    }
+  }
+
+  // 3. Color wave — much faster cycling
+  if(animState.colorWave||animState.inverseActive){
+    updateColors(elapsed,hz);
+  }
+
+  animId=requestAnimationFrame(animLoop);
+}
+
+function updateColors(t,hz){
+  let nR=parseInt(document.getElementById('rings').value);
+  let svgEl=document.getElementById('mandala-svg');
+
+  for(let ring=0;ring<nR;ring++){
+    let ringEl=svgEl.querySelector(`#ring-${ring}`);
+    if(!ringEl)continue;
+
+    let hueShift=0;
+    if(animState.colorWave){
+      let phase;
+      let speed=animState.colorSpeed*hz*6; // 3x faster than before
+      if(animState.colorDir==='center-out'){
+        phase=t*speed-ring*0.5;
+      }else if(animState.colorDir==='out-center'){
+        phase=t*speed+ring*0.5;
+      }else{
+        phase=t*speed+Math.sin(ring*0.7)*3;
+      }
+      hueShift=Math.sin(phase)*60*animState.colorIntensity; // wider hue range
+    }
+
+    // Inverse mode: different phase for colors vs shapes
+    if(animState.inverseActive){
+      let colPhase;
+      let invSpeed=hz*4; // faster inverse cycling
+      if(animState.colorInverseDir==='center-out'){
+        colPhase=t*invSpeed-ring*0.6;
+      }else{
+        colPhase=t*invSpeed+ring*0.6;
+      }
+      let colHue=Math.sin(colPhase)*50*animState.colorIntensity;
+      hueShift+=colHue;
+    }
+
+    if(hueShift!==0){
+      ringEl.style.filter=`hue-rotate(${hueShift.toFixed(1)}deg)`;
+    }else{
+      ringEl.style.filter='';
+    }
+  }
+}
+
+function startAnim(){
+  // Auto-enable rotation if nothing is active — so Play All is never "empty"
+  if(!animState.rotating&&!animState.pulsing&&!animState.colorWave&&!animState.inverseActive){
+    animState.rotating=true;animState.rotateDir=1;
+  }
+  animState.playing=true;
+  animState.startTime=performance.now();
+  animId=requestAnimationFrame(animLoop);
+}
+
+function stopAnim(){
+  animState.playing=false;
+  if(animId)cancelAnimationFrame(animId);
+  let svg=document.getElementById('mandala-svg');
+  let group=document.getElementById('mandala-group');
+  // Reset to initial translate only
+  if(group)group.setAttribute('transform',`translate(${CX},${CY})`);
+  // Clear ring transforms and filters
+  let nR=parseInt(document.getElementById('rings').value);
+  for(let ring=0;ring<nR;ring++){
+    let el=svg.querySelector(`#ring-${ring}`);
+    if(el){el.style.transform='';el.style.filter='';}
+  }
+}
+
+function fullRandom(){
+  // Randomize mandala
+  randomize();
+  // Randomize frame
+  let frames=['circle','circle','circle','square','diamond','pentagon','hexagon','octagon'];
+  document.getElementById('frame-shape').value=frames[Math.floor(Math.random()*frames.length)];
+  applyFrame();
+  // Randomize animation
+  let dirs=[1,-1,0];
+  let cdirs=['center-out','out-center','random'];
+  animState.rotating=Math.random()>0.2;
+  animState.rotateDir=dirs[Math.floor(Math.random()*3)];
+  animState.rotateSpeed=0.5+Math.random()*3;
+  animState.pulsing=Math.random()>0.3;
+  animState.pulseIntensity=0.2+Math.random()*0.8;
+  animState.pulseSpeed=0.5+Math.random()*2;
+  animState.colorWave=Math.random()>0.25;
+  animState.colorDir=cdirs[Math.floor(Math.random()*3)];
+  animState.colorSpeed=0.5+Math.random()*2.5;
+  animState.colorIntensity=0.2+Math.random()*0.8;
+  animState.inverseActive=Math.random()>0.6;
+  animState.colorInverseDir=cdirs[Math.floor(Math.random()*3)];
+  animState.shapeInverseDir=Math.random()>0.5?'center-out':'out-center';
+  animState.syncHz=Math.random()>0.7;
+  animState.hzMult=0.5+Math.random()*4;
+  // Update UI controls
+  updateAnimUI();
+  // Start animation
+  startAnim();
+}
+
+function updateAnimUI(){
+  document.getElementById('anim-rotate-speed').value=animState.rotateSpeed*10;
+  document.getElementById('v-aspeed').textContent=animState.rotateSpeed.toFixed(1);
+  document.getElementById('anim-pulse-int').value=animState.pulseIntensity*30;
+  document.getElementById('v-apulse').textContent=animState.pulseIntensity.toFixed(2);
+  document.getElementById('anim-pulse-speed').value=animState.pulseSpeed*10;
+  document.getElementById('v-apspeed').textContent=animState.pulseSpeed.toFixed(1);
+  document.getElementById('anim-color-speed').value=animState.colorSpeed*10;
+  document.getElementById('v-acspeed').textContent=animState.colorSpeed.toFixed(1);
+  document.getElementById('anim-color-int').value=animState.colorIntensity*30;
+  document.getElementById('v-acint').textContent=animState.colorIntensity.toFixed(2);
+  document.getElementById('anim-hz-mult').value=animState.hzMult*10;
+  document.getElementById('v-ahz').textContent=animState.hzMult.toFixed(1);
+  document.getElementById('anim-color-active').checked=animState.colorWave;
+  document.getElementById('anim-inverse-active').checked=animState.inverseActive;
+  document.getElementById('anim-sync-hz').checked=animState.syncHz;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PATTERN GENERATORS (Enhanced)
+// ═══════════════════════════════════════════════════════════════
+function drawPattern(pat,ring,rIn,rOut,rMid,n,complexity,coloring,sw,op,phase,variation,fShape,maxR){
+  let s='';
+  let col=coloring?'none':getColorStr(ring,n);
+  let col2=coloring?'none':getColorStr(ring,n,0.6);
+  let colFade=coloring?'none':getColorStr(ring,n,0.3);
+  // Frame-aware radius helper: adjusts radius at angle for polygon shapes
+  let fr=(r,a)=>{
+    if(fShape==='circle')return r;
+    return frameRadius(a,fShape,maxR)*(r/maxR);
+  };
+  for(let i=0;i<n;i++){
+    let a=(Math.PI*2/n)*i+phase;
+    let av=variation>0?(Math.random()-.5)*variation*0.5:0;
+    let aa=a+av;
+    // Base coordinates (circle for now, overridden per-pattern)
+    let x1=Math.cos(aa)*rIn,y1=Math.sin(aa)*rIn;
+    let x2=Math.cos(aa)*rOut,y2=Math.sin(aa)*rOut;
+    let xM=Math.cos(aa)*rMid,yM=Math.sin(aa)*rMid;
+    let aOff=(Math.PI/2/n);
+
+    switch(pat){
+      case'petals':{
+        let cpR=fr((rIn+rOut)/2,a);
+        let cpA1=a+0.25, cpA2=a-0.25;
+        let cp1x=Math.cos(cpA1)*fr(cpR,cpA1),cp1y=Math.sin(cpA1)*fr(cpR,cpA1);
+        let cp2x=Math.cos(cpA2)*fr(cpR,cpA2),cp2y=Math.sin(cpA2)*fr(cpR,cpA2);
+        x1=Math.cos(aa)*fr(rIn,aa);y1=Math.sin(aa)*fr(rIn,aa);
+        x2=Math.cos(aa)*fr(rOut,aa);y2=Math.sin(aa)*fr(rOut,aa);
+        // Main petal
+        s+=`<path d="M${x1.toFixed(1)},${y1.toFixed(1)} Q${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${((x1+x2)/2).toFixed(1)},${((y1+y2)/2).toFixed(1)} Q${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${x1.toFixed(1)},${y1.toFixed(1)} Z" fill="${col}" stroke="${col}" stroke-width="${sw}" opacity="${op}"/>`;
+        // Inner vein
+        if(complexity>2){
+          let vR=fr((rIn+rOut*0.7)/2,a);
+          let vx=Math.cos(a)*vR,vy=Math.sin(a)*vR;
+          s+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${vx.toFixed(1)}" y2="${vy.toFixed(1)}" stroke="${col2}" stroke-width="${sw*0.6}" opacity="${op*0.6}"/>`;
+        }
+        // Tip dot
+        if(complexity>3){
+          let dotR=sw*1.5;
+          s+=`<circle cx="${x2.toFixed(1)}" cy="${y2.toFixed(1)}" r="${dotR.toFixed(1)}" fill="${col2}" opacity="${op*0.7}"/>`;
+        }
+        break;}
+      case'lotus':{
+        for(let layer=2;layer>=0;layer--){
+          let lr=rIn+(rOut-rIn)*(1-layer*0.25);
+          let lOff=phase+aOff*layer*0.3;
+          let lx1=Math.cos(a+lOff)*fr(rIn,a+lOff),ly1=Math.sin(a+lOff)*fr(rIn,a+lOff);
+          let lx2=Math.cos(a+lOff)*fr(lr,a+lOff),ly2=Math.sin(a+lOff)*fr(lr,a+lOff);
+          let cpR2=fr((rIn+lr)/2,a+lOff);
+          let cpA1=a+lOff+0.3-layer*0.05;
+          let cpA2=a+lOff-0.3+layer*0.05;
+          let lOpacity=op*(0.3+layer*0.25);
+          let lFill=coloring?'none':getColorStr(ring+layer,n,0.5+layer*0.15);
+          s+=`<path d="M${lx1.toFixed(1)},${ly1.toFixed(1)} Q${(Math.cos(cpA1)*fr(cpR2,cpA1)).toFixed(1)},${(Math.sin(cpA1)*fr(cpR2,cpA1)).toFixed(1)} ${((lx1+lx2)/2).toFixed(1)},${((ly1+ly2)/2).toFixed(1)} Q${(Math.cos(cpA2)*fr(cpR2,cpA2)).toFixed(1)},${(Math.sin(cpA2)*fr(cpR2,cpA2)).toFixed(1)} ${lx1.toFixed(1)},${ly1.toFixed(1)} Z" fill="${lFill}" stroke="${lFill}" stroke-width="${sw*(0.5+layer*0.2)}" opacity="${lOpacity}"/>`;
+        }
+        break;}
+      case'diamonds':{
+        let aL=a-aOff*0.8,aR=a+aOff*0.8;
+        let dx1=Math.cos(aL)*fr(rIn,aL),dy1=Math.sin(aL)*fr(rIn,aL);
+        let dx2=Math.cos(a)*fr(rOut,a),dy2=Math.sin(a)*fr(rOut,a);
+        let dx3=Math.cos(aR)*fr(rIn,aR),dy3=Math.sin(aR)*fr(rIn,aR);
+        s+=`<polygon points="${dx1.toFixed(1)},${dy1.toFixed(1)} ${dx2.toFixed(1)},${dy2.toFixed(1)} ${dx3.toFixed(1)},${dy3.toFixed(1)}" fill="${col}" stroke="${col}" stroke-width="${sw}" opacity="${op}"/>`;
+        // Inner diamond
+        if(complexity>2){
+          let ir=rIn+(rOut-rIn)*0.3;
+          let ix1=Math.cos(aL)*fr(ir,aL),iy1=Math.sin(aL)*fr(ir,aL);
+          let ix2=Math.cos(a)*fr(rOut*0.85,a),iy2=Math.sin(a)*fr(rOut*0.85,a);
+          let ix3=Math.cos(aR)*fr(ir,aR),iy3=Math.sin(aR)*fr(ir,aR);
+          s+=`<polygon points="${ix1.toFixed(1)},${iy1.toFixed(1)} ${ix2.toFixed(1)},${iy2.toFixed(1)} ${ix3.toFixed(1)},${iy3.toFixed(1)}" fill="none" stroke="${col2}" stroke-width="${sw*0.6}" opacity="${op*0.6}"/>`;
+        }
+        // Center dot
+        if(complexity>3){
+          let midR=fr((rIn+rOut)/2,a);
+          s+=`<circle cx="${(Math.cos(a)*midR).toFixed(1)}" cy="${(Math.sin(a)*midR).toFixed(1)}" r="${(sw*1.2).toFixed(1)}" fill="${col2}" opacity="${op*0.7}"/>`;
+        }
+        break;}
+      case'dots':{
+        let dotR=(rOut-rIn)*0.3;
+        let x=Math.cos(a)*rMid,y=Math.sin(a)*rMid;
+        s+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${dotR.toFixed(1)}" fill="${col}" stroke="${col}" stroke-width="${sw*0.5}" opacity="${op}"/>`;
+        // Concentric ring
+        if(complexity>2){
+          s+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(dotR*0.55).toFixed(1)}" fill="none" stroke="${col2}" stroke-width="${sw*0.6}" opacity="${op*0.6}"/>`;
+        }
+        // Micro dots around
+        if(complexity>3){
+          for(let j=0;j<6;j++){
+            let ma=a+j*Math.PI/3;
+            let md=dotR*1.3;
+            let mx=x+Math.cos(ma)*md,my=y+Math.sin(ma)*md;
+            s+=`<circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="${(sw*0.8).toFixed(1)}" fill="${colFade}" opacity="${op*0.4}"/>`;
+          }
+        }
+        break;}
+      case'arcs':{
+        let a1=a-aOff*0.7,a2=a+aOff*0.7;
+        let ax1=Math.cos(a1)*rMid,ay1=Math.sin(a1)*rMid;
+        let ax2=Math.cos(a2)*rMid,ay2=Math.sin(a2)*rMid;
+        s+=`<path d="M${ax1.toFixed(1)},${ay1.toFixed(1)} A${rMid.toFixed(1)},${rMid.toFixed(1)} 0 0,1 ${ax2.toFixed(1)},${ay2.toFixed(1)}" fill="none" stroke="${col}" stroke-width="${(sw*2.5).toFixed(1)}" opacity="${op}" stroke-linecap="round"/>`;
+        // Inner arc
+        if(complexity>2){
+          let iR=rMid-rIn+rIn*0.3;
+          let ix1=Math.cos(a1)*iR,iy1=Math.sin(a1)*iR;
+          let ix2=Math.cos(a2)*iR,iy2=Math.sin(a2)*iR;
+          s+=`<path d="M${ix1.toFixed(1)},${iy1.toFixed(1)} A${iR.toFixed(1)},${iR.toFixed(1)} 0 0,1 ${ix2.toFixed(1)},${iy2.toFixed(1)}" fill="none" stroke="${col2}" stroke-width="${sw}" opacity="${op*0.5}" stroke-linecap="round"/>`;
+        }
+        // Connection dots
+        if(complexity>3){
+          s+=`<circle cx="${ax1.toFixed(1)}" cy="${ay1.toFixed(1)}" r="${(sw).toFixed(1)}" fill="${col2}" opacity="${op*0.7}"/>`;
+          s+=`<circle cx="${ax2.toFixed(1)}" cy="${ay2.toFixed(1)}" r="${(sw).toFixed(1)}" fill="${col2}" opacity="${op*0.7}"/>`;
+        }
+        break;}
+      case'triangles':{
+        let tL=a-aOff*0.6,tR=a+aOff*0.6;
+        let tx1=Math.cos(a)*rOut,ty1=Math.sin(a)*rOut;
+        let tx2=Math.cos(tL)*rIn,ty2=Math.sin(tL)*rIn;
+        let tx3=Math.cos(tR)*rIn,ty3=Math.sin(tR)*rIn;
+        s+=`<polygon points="${tx1.toFixed(1)},${ty1.toFixed(1)} ${tx2.toFixed(1)},${ty2.toFixed(1)} ${tx3.toFixed(1)},${ty3.toFixed(1)}" fill="${col}" stroke="${col}" stroke-width="${sw}" opacity="${op}"/>`;
+        // Median line
+        if(complexity>2){
+          let mX=Math.cos(a)*rIn,mY=Math.sin(a)*rIn;
+          s+=`<line x1="${tx1.toFixed(1)}" y1="${ty1.toFixed(1)}" x2="${mX.toFixed(1)}" y2="${mY.toFixed(1)}" stroke="${col2}" stroke-width="${sw*0.5}" opacity="${op*0.5}"/>`;
+        }
+        // Corner dots
+        if(complexity>3){
+          s+=`<circle cx="${tx1.toFixed(1)}" cy="${ty1.toFixed(1)}" r="${(sw*0.8).toFixed(1)}" fill="${col2}" opacity="${op*0.7}"/>`;
+        }
+        break;}
+      case'waves':{
+        let pts=[];
+        let wCount=Math.max(8,n*2);
+        for(let j=0;j<=wCount;j++){
+          let wa=a+(j/wCount)*Math.PI*2/n;
+          let wR=rMid+Math.sin(j*2.5)*((rOut-rIn)*0.35);
+          pts.push(`${(Math.cos(wa)*wR).toFixed(1)},${(Math.sin(wa)*wR).toFixed(1)}`);
+        }
+        s+=`<polyline points="${pts.join(' ')}" fill="none" stroke="${col}" stroke-width="${sw}" opacity="${op}" stroke-linejoin="round"/>`;
+        // Second wave (phase shifted)
+        if(complexity>2){
+          let pts2=[];
+          for(let j=0;j<=wCount;j++){
+            let wa=a+(j/wCount)*Math.PI*2/n;
+            let wR=rMid+Math.cos(j*2.5)*((rOut-rIn)*0.25);
+            pts2.push(`${(Math.cos(wa)*wR).toFixed(1)},${(Math.sin(wa)*wR).toFixed(1)}`);
+          }
+          s+=`<polyline points="${pts2.join(' ')}" fill="none" stroke="${col2}" stroke-width="${sw*0.6}" opacity="${op*0.4}" stroke-linejoin="round"/>`;
+        }
+        break;}
+      case'zigzag':{
+        let pts=[];
+        for(let j=0;j<n*2;j++){
+          let za=a+(j/(n*2))*Math.PI*2/n;
+          let zr=j%2===0?rOut:rIn;
+          pts.push(`${(Math.cos(za)*zr).toFixed(1)},${(Math.sin(za)*zr).toFixed(1)}`);
+        }
+        s+=`<polygon points="${pts.join(' ')}" fill="${col}" stroke="${col}" stroke-width="${sw}" opacity="${op}"/>`;
+        break;}
+      case'weave':{
+        // Celtic interlace pattern
+        let w1R=rIn+(rOut-rIn)*0.3;
+        let w2R=rIn+(rOut-rIn)*0.7;
+        let nextA=a+Math.PI*2/n;
+        // Over strand
+        let ox1=Math.cos(a)*w1R,oy1=Math.sin(a)*w1R;
+        let ox2=Math.cos(nextA)*w2R,oy2=Math.sin(nextA)*w2R;
+        let ocp=Math.cos(a+Math.PI/n)*rMid;
+        let ocpY=Math.sin(a+Math.PI/n)*rMid;
+        s+=`<path d="M${ox1.toFixed(1)},${oy1.toFixed(1)} Q${ocp.toFixed(1)},${ocpY.toFixed(1)} ${ox2.toFixed(1)},${oy2.toFixed(1)}" fill="none" stroke="${col}" stroke-width="${(sw*2).toFixed(1)}" opacity="${op}" stroke-linecap="round"/>`;
+        // Under strand
+        if(complexity>1){
+          let ux1=Math.cos(a+Math.PI/n)*w2R,uy1=Math.sin(a+Math.PI/n)*w2R;
+          let ux2=Math.cos(nextA+Math.PI/n)*w1R,uy2=Math.sin(nextA+Math.PI/n)*w1R;
+          let ucp=Math.cos(a+Math.PI*2/n)*rMid;
+          let ucpY=Math.sin(a+Math.PI*2/n)*rMid;
+          s+=`<path d="M${ux1.toFixed(1)},${uy1.toFixed(1)} Q${ucp.toFixed(1)},${ucpY.toFixed(1)} ${ux2.toFixed(1)},${uy2.toFixed(1)}" fill="none" stroke="${col2}" stroke-width="${(sw*1.5).toFixed(1)}" opacity="${op*0.6}" stroke-linecap="round"/>`;
+        }
+        break;}
+      case'flame':{
+        // Organic flame shape
+        let fR=rOut-rIn;
+        let fH=rIn+fR*0.8;
+        let fW=Math.PI*2/n*0.35;
+        let fx1=Math.cos(a-fW)*rIn,fy1=Math.sin(a-fW)*rIn;
+        let fx2=Math.cos(a+fW)*rIn,fy2=Math.sin(a+fW)*rIn;
+        let ftop=Math.cos(a)*rOut,ftopY=Math.sin(a)*rOut;
+        let cp1x=Math.cos(a-fW*0.5)*(rIn+fR*0.6),cp1y=Math.sin(a-fW*0.5)*(rIn+fR*0.6);
+        let cp2x=Math.cos(a+fW*0.5)*(rIn+fR*0.6),cp2y=Math.sin(a+fW*0.5)*(rIn+fR*0.6);
+        s+=`<path d="M${fx1.toFixed(1)},${fy1.toFixed(1)} Q${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${ftop.toFixed(1)},${ftopY.toFixed(1)} Q${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${fx2.toFixed(1)},${fy2.toFixed(1)} Z" fill="${col}" stroke="${col}" stroke-width="${sw*0.5}" opacity="${op}"/>`;
+        // Inner flame
+        if(complexity>2){
+          let iR2=fR*0.4;
+          let ifx1=Math.cos(a-fW*0.5)*rIn,ify1=Math.sin(a-fW*0.5)*rIn;
+          let ifx2=Math.cos(a+fW*0.5)*rIn,ify2=Math.sin(a+fW*0.5)*rIn;
+          let ift=Math.cos(a)*(rIn+fR*0.6),iftY=Math.sin(a)*(rIn+fR*0.6);
+          s+=`<path d="M${ifx1.toFixed(1)},${ify1.toFixed(1)} Q${(Math.cos(a)*rMid).toFixed(1)},${(Math.sin(a)*rMid).toFixed(1)} ${ift.toFixed(1)},${iftY.toFixed(1)} Q${(Math.cos(a)*rMid).toFixed(1)},${(Math.sin(a)*rMid).toFixed(1)} ${ifx2.toFixed(1)},${ify2.toFixed(1)} Z" fill="${col2}" stroke="none" opacity="${op*0.4}"/>`;
+        }
+        break;}
+      case'scales':{
+        // Fish scale / petal overlap
+        let scR=(rOut-rIn)*0.45;
+        let cx=Math.cos(a)*rMid,cy=Math.sin(a)*rMid;
+        // Scale arc (half-circle)
+        s+=`<path d="M${(cx-scR).toFixed(1)},${cy.toFixed(1)} A${scR.toFixed(1)},${scR.toFixed(1)} 0 0,1 ${(cx+scR).toFixed(1)},${cy.toFixed(1)} Z" fill="${col}" stroke="${col2}" stroke-width="${sw*0.5}" opacity="${op}"/>`;
+        if(complexity>3){
+          s+=`<circle cx="${cx.toFixed(1)}" cy="${(cy-scR*0.3).toFixed(1)}" r="${(scR*0.25).toFixed(1)}" fill="${colFade}" opacity="${op*0.3}"/>`;
+        }
+        break;}
+      case'intricate':{
+        // Mix: arc + diamond + dots combined
+        let ar=(rIn+rOut)/2;
+        // Arc
+        let ia1=a-aOff*0.6,ia2=a+aOff*0.6;
+        let iax1=Math.cos(ia1)*ar,iay1=Math.sin(ia1)*ar;
+        let iax2=Math.cos(ia2)*ar,iay2=Math.sin(ia2)*ar;
+        s+=`<path d="M${iax1.toFixed(1)},${iay1.toFixed(1)} A${ar.toFixed(1)},${ar.toFixed(1)} 0 0,1 ${iax2.toFixed(1)},${iay2.toFixed(1)}" fill="none" stroke="${col}" stroke-width="${sw*1.5}" opacity="${op}" stroke-linecap="round"/>`;
+        // Diamond at tip
+        if(complexity>1){
+          let tipX=Math.cos(a)*rOut,tipY=Math.sin(a)*rOut;
+          let dS=(rOut-rIn)*0.15;
+          s+=`<polygon points="${tipX.toFixed(1)},${(tipY-dS).toFixed(1)} ${(tipX+dS).toFixed(1)},${tipY.toFixed(1)} ${tipX.toFixed(1)},${(tipY+dS).toFixed(1)} ${(tipX-dS).toFixed(1)},${tipY.toFixed(1)}" fill="${col2}" stroke="none" opacity="${op*0.7}"/>`;
+        }
+        // Dots
+        if(complexity>2){
+          let dotX=Math.cos(a)*rIn,dotY=Math.sin(a)*rIn;
+          s+=`<circle cx="${dotX.toFixed(1)}" cy="${dotY.toFixed(1)}" r="${(sw*1.2).toFixed(1)}" fill="${col}" opacity="${op*0.6}"/>`;
+        }
+        // Inner arc
+        if(complexity>3){
+          let iR3=rIn+(rOut-rIn)*0.25;
+          let ix1=Math.cos(ia1)*iR3,iy1=Math.sin(ia1)*iR3;
+          let ix2=Math.cos(ia2)*iR3,iy2=Math.sin(ia2)*iR3;
+          s+=`<path d="M${ix1.toFixed(1)},${iy1.toFixed(1)} A${iR3.toFixed(1)},${iR3.toFixed(1)} 0 0,1 ${ix2.toFixed(1)},${iy2.toFixed(1)}" fill="none" stroke="${colFade}" stroke-width="${sw}" opacity="${op*0.35}" stroke-linecap="round"/>`;
+        }
+        break;}
+    }
+  }
+  return s;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BORDER GENERATOR
+// ═══════════════════════════════════════════════════════════════
+function drawBorder(pat,radius,n,ring,coloring,sw,op){
+  let s='';
+  let col=coloring?'none':getColorStr(ring+0.5,n,0.5);
+  for(let i=0;i<n;i++){
+    let a=(Math.PI*2/n)*i;
+    let x=Math.cos(a)*radius,y=Math.sin(a)*radius;
+    switch(pat){
+      case'dots':
+        s+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(sw*0.8).toFixed(1)}" fill="${col}" opacity="${op*0.5}"/>`;break;
+      case'lines':
+        let lx=Math.cos(a)*(radius-sw*2),ly=Math.sin(a)*(radius-sw*2);
+        s+=`<line x1="${lx.toFixed(1)}" y1="${ly.toFixed(1)}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${col}" stroke-width="${(sw*0.4).toFixed(1)}" opacity="${op*0.3}"/>`;break;
+      case'diamonds':
+        let dA=Math.PI*2/n*0.3;
+        let dx1=Math.cos(a-dA)*(radius-sw),dy1=Math.sin(a-dA)*(radius-sw);
+        let dx2=Math.cos(a)*(radius+sw),dy2=Math.sin(a)*(radius+sw);
+        let dx3=Math.cos(a+dA)*(radius-sw),dy3=Math.sin(a+dA)*(radius-sw);
+        s+=`<polygon points="${dx1.toFixed(1)},${dy1.toFixed(1)} ${dx2.toFixed(1)},${dy2.toFixed(1)} ${dx3.toFixed(1)},${dy3.toFixed(1)}" fill="${col}" opacity="${op*0.35}"/>`;break;
+    }
+  }
+  return s;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CENTER GENERATOR
+// ═══════════════════════════════════════════════════════════════
+function drawCenter(pat,nR,complexity,coloring,sw,op,r){
+  let s='';
+  let col=coloring?'none':getColorStr(0,nR);
+  let col2=coloring?'none':getColorStr(1,nR,0.6);
+  switch(pat){
+    case'bindu':
+      s+=`<circle cx="0" cy="0" r="${(r*0.45).toFixed(1)}" fill="${col}" stroke="${col}" stroke-width="${sw}" opacity="${op}"/>`;
+      s+=`<circle cx="0" cy="0" r="${(r*0.2).toFixed(1)}" fill="${col2}" stroke="none" opacity="${op*0.6}"/>`;
+      s+=`<circle cx="0" cy="0" r="${(r*0.08).toFixed(1)}" fill="${coloring?'none':'#fff'}" stroke="none" opacity="${op*0.5}"/>`;
+      break;
+    case'flower':
+      for(let i=0;i<8;i++){
+        let a=(Math.PI*2/8)*i;
+        let fx2=Math.cos(a)*r*0.4,fy2=Math.sin(a)*r*0.4;
+        let cpx=Math.cos(a+0.35)*r*0.35,cpy=Math.sin(a+0.35)*r*0.35;
+        let cpx2=Math.cos(a-0.35)*r*0.35,cpy2=Math.sin(a-0.35)*r*0.35;
+        s+=`<path d="M0,0 Q${cpx.toFixed(1)},${cpy.toFixed(1)} ${fx2.toFixed(1)},${fy2.toFixed(1)} Q${cpx2.toFixed(1)},${cpy2.toFixed(1)} 0,0" fill="${col}" stroke="${col2}" stroke-width="${sw*0.5}" opacity="${op*0.8}"/>`;
+        // Inner petal
+        if(complexity>2){
+          let ix=Math.cos(a)*r*0.2,iy=Math.sin(a)*r*0.2;
+          s+=`<circle cx="${ix.toFixed(1)}" cy="${iy.toFixed(1)}" r="${(sw*1.5).toFixed(1)}" fill="${col2}" opacity="${op*0.4}"/>`;
+        }
+      }
+      s+=`<circle cx="0" cy="0" r="${(r*0.08).toFixed(1)}" fill="${col2}" opacity="${op}"/>`;
+      break;
+    case'star':
+      for(let i=0;i<6;i++){
+        let a=(Math.PI*2/6)*i-Math.PI/2;
+        let sx=Math.cos(a)*r*0.45,sy=Math.sin(a)*r*0.45;
+        s+=`<line x1="0" y1="0" x2="${sx.toFixed(1)}" y2="${sy.toFixed(1)}" stroke="${col}" stroke-width="${sw}" opacity="${op}" stroke-linecap="round"/>`;
+        if(complexity>2){
+          let dx=Math.cos(a)*r*0.3,dy=Math.sin(a)*r*0.3;
+          s+=`<circle cx="${dx.toFixed(1)}" cy="${dy.toFixed(1)}" r="${(sw).toFixed(1)}" fill="${col2}" opacity="${op*0.5}"/>`;
+        }
+      }
+      s+=`<circle cx="0" cy="0" r="${(r*0.1).toFixed(1)}" fill="${col}" opacity="${op}"/>`;
+      break;
+    case'spiral':
+      let pts=[];
+      for(let t=0;t<Math.PI*8;t+=0.08){
+        let sr=r*0.04+t*r*0.055;
+        pts.push(`${(Math.cos(t)*sr).toFixed(1)},${(Math.sin(t)*sr).toFixed(1)}`);
+      }
+      s+=`<polyline points="${pts.join(' ')}" fill="none" stroke="${col}" stroke-width="${sw}" opacity="${op}" stroke-linecap="round"/>`;
+      break;
+    case'lotus-center':
+      // Multi-layer lotus at center
+      for(let layer=3;layer>=1;layer--){
+        let lr=r*0.15*layer;
+        for(let i=0;i<8;i++){
+          let a=(Math.PI*2/8)*i+layer*0.2;
+          let lx1=Math.cos(a)*lr*0.3,ly1=Math.sin(a)*lr*0.3;
+          let lx2=Math.cos(a)*lr,ly2=Math.sin(a)*lr;
+          let cpx=Math.cos(a+0.3)*lr*0.7,cpy=Math.sin(a+0.3)*lr*0.7;
+          let cpx2=Math.cos(a-0.3)*lr*0.7,cpy2=Math.sin(a-0.3)*lr*0.7;
+          let lc=coloring?'none':getColorStr(layer,nR,0.5+layer*0.1);
+          s+=`<path d="M${lx1.toFixed(1)},${ly1.toFixed(1)} Q${cpx.toFixed(1)},${cpy.toFixed(1)} ${lx2.toFixed(1)},${ly2.toFixed(1)} Q${cpx2.toFixed(1)},${cpy2.toFixed(1)} ${lx1.toFixed(1)},${ly1.toFixed(1)}" fill="${lc}" stroke="${lc}" stroke-width="${sw*0.4}" opacity="${op*(0.3+layer*0.15)}"/>`;
+        }
+      }
+      s+=`<circle cx="0" cy="0" r="${(r*0.06).toFixed(1)}" fill="${col}" opacity="${op}"/>`;
+      break;
+    case'om':
+      s+=`<text x="0" y="8" text-anchor="middle" font-size="${(r*0.55).toFixed(0)}" fill="${col}" stroke="${col}" stroke-width="0.3" opacity="${op}" font-family="serif">ॐ</text>`;
+      break;
+  }
+  return s;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DIGITAL PAINTING
+// ═══════════════════════════════════════════════════════════════
+const PAINT_COLORS=['#e74c3c','#e67e22','#f1c40f','#2ecc71','#3498db','#9b59b6','#1abc9c','#e84393','#fd79a8','#00cec9','#6c5ce7','#fdcb6e','#fab1a0','#74b9ff','#a29bfe','#55efc4','#ff7675','#dfe6e9','#2d3436','#636e72','#b2bec3','#ffeaa7','#d63031','#0984e3'];
+
+function togglePainting(){
+  let active=document.getElementById('coloring-mode').checked;
+  let canvas=document.getElementById('paint-canvas');
+  let toolbar=document.getElementById('paint-toolbar');
+  if(active){
+    paintMode=true;
+    let svgEl=document.getElementById('mandala-svg');
+    let rect=svgEl.getBoundingClientRect();
+    canvas.width=rect.width;canvas.height=rect.height;
+    canvas.style.display='block';
+    canvas.classList.add('active');
+    canvas.style.left=rect.left+'px';canvas.style.top=rect.top+'px';
+    toolbar.classList.add('active');
+    renderPaintCanvas();
+  }else{
+    paintMode=false;
+    canvas.style.display='none';
+    canvas.classList.remove('active');
+    toolbar.classList.remove('active');
+  }
+}
+
+function renderPaintCanvas(){
+  let canvas=document.getElementById('paint-canvas');
+  let ctx=canvas.getContext('2d');
+  // Render SVG to canvas
+  let svgEl=document.getElementById('mandala-svg');
+  let svgData=new XMLSerializer().serializeToString(svgEl);
+  let img=new Image();
+  img.onload=()=>{
+    ctx.drawImage(img,0,0,canvas.width,canvas.height);
+    paintHistory=[ctx.getImageData(0,0,canvas.width,canvas.height)];
+    paintRedoStack=[];
+  };
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svgData);
+}
+
+function initPaintListeners(){
+  let canvas=document.getElementById('paint-canvas');
+  let ctx;
+  canvas.addEventListener('mousedown',e=>{
+    if(!paintMode)return;
+    ctx=canvas.getContext('2d');
+    let rect=canvas.getBoundingClientRect();
+    let x=e.clientX-rect.left,y=e.clientY-rect.top;
+    floodFill(ctx,Math.round(x),Math.round(y),paintColor,canvas.width,canvas.height);
+    paintHistory.push(ctx.getImageData(0,0,canvas.width,canvas.height));
+    if(paintHistory.length>20)paintHistory.shift();
+    paintRedoStack=[];
+  });
+  // Build swatches
+  let swDiv=document.getElementById('paint-swatches');
+  swDiv.innerHTML='';
+  PAINT_COLORS.forEach(c=>{
+    let d=document.createElement('div');
+    d.className='paint-swatch';d.style.background=c;
+    d.onclick=()=>setPaintColor(c);
+    swDiv.appendChild(d);
+  });
+}
+
+function setPaintColor(c){
+  paintColor=c;
+  document.getElementById('paint-cur').style.background=c;
+  document.getElementById('paint-pick').value=c;
+}
+
+function floodFill(ctx,startX,startY,fillColor,w,h){
+  let imageData=ctx.getImageData(0,0,w,h);
+  let data=imageData.data;
+  let targetIdx=(startY*w+startX)*4;
+  let tR=data[targetIdx],tG=data[targetIdx+1],tB=data[targetIdx+2],tA=data[targetIdx+3];
+  // Parse fill color
+  let tmp=document.createElement('canvas');tmp.width=tmp.height=1;
+  let tmpCtx=tmp.getContext('2d');tmpCtx.fillStyle=fillColor;tmpCtx.fillRect(0,0,1,1);
+  let fData=tmpCtx.getImageData(0,0,1,1).data;
+  let fR=fData[0],fG=fData[1],fB=fData[2];
+  // Don't fill if same color
+  if(tR===fR&&tG===fG&&tB===fB)return;
+  let stack=[[startX,startY]];
+  let visited=new Uint8Array(w*h);
+  let tolerance=30;
+  function match(i){
+    return Math.abs(data[i]-tR)<=tolerance&&Math.abs(data[i+1]-tG)<=tolerance&&Math.abs(data[i+2]-tB)<=tolerance&&Math.abs(data[i+3]-tA)<=tolerance;
+  }
+  while(stack.length>0){
+    let[x,y]=stack.pop();
+    let pos=y*w+x;
+    if(x<0||x>=w||y<0||y>=h||visited[pos])continue;
+    let idx=pos*4;
+    if(!match(idx))continue;
+    visited[pos]=1;
+    data[idx]=fR;data[idx+1]=fG;data[idx+2]=fB;data[idx+3]=255;
+    stack.push([x+1,y],[x-1,y],[x,y+1],[x,y-1]);
+  }
+  ctx.putImageData(imageData,0,0);
+}
+
+function paintUndo(){
+  if(paintHistory.length<=1)return;
+  paintRedoStack.push(paintHistory.pop());
+  let ctx=document.getElementById('paint-canvas').getContext('2d');
+  ctx.putImageData(paintHistory[paintHistory.length-1],0,0);
+}
+function paintRedo(){
+  if(paintRedoStack.length===0)return;
+  let data=paintRedoStack.pop();
+  paintHistory.push(data);
+  let ctx=document.getElementById('paint-canvas').getContext('2d');
+  ctx.putImageData(data,0,0);
+}
+function clearPaint(){
+  renderPaintCanvas();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MEDITATION
+// ═══════════════════════════════════════════════════════════════
+let medAnimPaused=false;
+function startMeditation(){
+  document.getElementById('med-overlay').classList.add('active');
+  gen(document.getElementById('med-svg'));
+  medTime=300;
+  updateMedTimer();
+  medTimer=setInterval(()=>{medTime--;updateMedTimer();if(medTime<=0)closeMed()},1000);
+  startMedBreathe();
+  medAnimPaused=false;
+  document.getElementById('med-pause-btn').textContent='⏸ Pause';
+  // Binaural audio
+  try{
+    if(!window._actx)window._actx=new(window.AudioContext||window.webkitAudioContext)();
+    let a=window._actx;if(a.state==='suspended')a.resume();
+    let oL=a.createOscillator(),oR=a.createOscillator();
+    oL.type='sine';oR.type='sine';
+    let pL=a.createStereoPanner(),pR=a.createStereoPanner();
+    pL.pan.value=-1;pR.pan.value=1;
+    let g=a.createGain();g.gain.value=0;
+    // If sync is ON, use Hz derived from rotation speed; otherwise use manual slider
+    let beatHz=animState.syncHz?getAnimHz():parseFloat(document.getElementById('med-beat-freq').value)/10;
+    let baseHz=parseFloat(document.getElementById('med-base-freq').value);
+    oL.frequency.value=baseHz;oR.frequency.value=baseHz+beatHz;
+    oL.connect(pL);pL.connect(g);oR.connect(pR);pR.connect(g);g.connect(a.destination);
+    oL.start();oR.start();
+    let vol=parseFloat(document.getElementById('med-volume').value)/100;
+    g.gain.setTargetAtTime(vol,a.currentTime,1);
+    window._medA={oL,oR,g,a};
+  }catch(e){}
+  // Start mandala animation on med-svg
+  medAnimId=requestAnimationFrame(medAnimLoop);
+}
+function medAnimLoop(t){
+  if(medAnimPaused||!document.getElementById('med-overlay').classList.contains('active'))return;
+  let svg=document.getElementById('med-svg');
+  let group=svg.querySelector('#mandala-group');
+  if(!group){medAnimId=requestAnimationFrame(medAnimLoop);return;}
+  let elapsed=(t-(window._medStartTime||t))/1000;
+  if(!window._medStartTime)window._medStartTime=t;
+  elapsed=(t-window._medStartTime)/1000;
+  let beatHz=parseFloat(document.getElementById('med-beat-freq').value)/10;
+  let rot=elapsed*30;
+  let scale=1+Math.sin(elapsed*beatHz*0.3)*0.08;
+  group.setAttribute('transform',`translate(250,250) rotate(${rot.toFixed(2)}) scale(${scale.toFixed(4)})`);
+  // Per-ring rotation
+  let nR=parseInt(document.getElementById('rings').value);
+  for(let ring=0;ring<nR;ring++){
+    let ringEl=svg.querySelector(`#ring-${ring}`);
+    if(!ringEl)continue;
+    let ringDir=(ring%2===0)?1:-1;
+    let ringRot=elapsed*(0.3+ring*0.15)*ringDir*beatHz*0.15;
+    ringEl.style.transformOrigin='0px 0px';
+    ringEl.style.transform=`rotate(${ringRot.toFixed(2)}deg)`;
+  }
+  medAnimId=requestAnimationFrame(medAnimLoop);
+}
+function toggleMedAnim(){
+  medAnimPaused=!medAnimPaused;
+  document.getElementById('med-pause-btn').textContent=medAnimPaused?'▶ Resume':'⏸ Pause';
+  if(!medAnimPaused){
+    window._medStartTime=performance.now()-((window._medLastElapsed||0)*1000);
+    medAnimId=requestAnimationFrame(medAnimLoop);
+  }else{
+    window._medLastElapsed=(performance.now()-(window._medStartTime||performance.now()))/1000;
+    if(medAnimId)cancelAnimationFrame(medAnimId);
+  }
+}
+function updateMedBinaural(){
+  // If sync is ON, Hz is derived from rotation speed; otherwise use manual slider
+  let beatHz=animState.syncHz?getAnimHz():parseFloat(document.getElementById('med-beat-freq').value)/10;
+  let baseHz=parseFloat(document.getElementById('med-base-freq').value);
+  let vol=parseFloat(document.getElementById('med-volume').value)/100;
+  document.getElementById('v-med-beat').textContent=beatHz.toFixed(1);
+  document.getElementById('v-med-base').textContent=baseHz.toFixed(0);
+  document.getElementById('v-med-vol').textContent=(vol*100).toFixed(0);
+  // Beat label
+  let label='';
+  if(beatHz<1)label='Delta · Deep sleep / healing';
+  else if(beatHz<4)label='Delta · Deep relaxation';
+  else if(beatHz<8)label='Theta · Meditation / creativity';
+  else if(beatHz<14)label='Alpha · Calm focus / flow';
+  else if(beatHz<30)label='Beta · Active thinking / alert';
+  else label='Gamma · Peak focus / cognition';
+  document.getElementById('med-beat-label').textContent=label+(animState.syncHz?' (synced from rotation)':'');
+  // Update live audio
+  if(window._medA){
+    try{
+      let a=window._medA.a;
+      window._medA.oL.frequency.setTargetAtTime(baseHz,a.currentTime,0.1);
+      window._medA.oR.frequency.setTargetAtTime(baseHz+beatHz,a.currentTime,0.1);
+      window._medA.g.gain.setTargetAtTime(vol,a.currentTime,0.1);
+    }catch(e){}
+  }
+}
+function updateMedTimer(){let m=Math.floor(medTime/60),s=medTime%60;document.getElementById('med-timer').textContent=m+':'+(s<10?'0':'')+s}
+function startMedBreathe(){
+  let step=0;const phases=['inhale','exhale'];const texts=['Breathe in...','Breathe out...'];
+  function cycle(){let el=document.getElementById('med-breathe');el.className='breathe-med '+phases[step%2];el.textContent=texts[step%2];step++;medBreatheInt=setTimeout(cycle,4000)}cycle();
+}
+function closeMed(){
+  document.getElementById('med-overlay').classList.remove('active');
+  clearInterval(medTimer);clearTimeout(medBreatheInt);
+  if(medAnimId)cancelAnimationFrame(medAnimId);
+  window._medStartTime=null;window._medLastElapsed=null;
+  if(window._medA){try{let t=window._medA.a.currentTime;window._medA.g.gain.setTargetAtTime(0,t,0.5);setTimeout(()=>{try{window._medA.oL.stop();window._medA.oR.stop()}catch(e){}},1000)}catch(e){}window._medA=null}
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════════════════════════════
+function exportSVG(){
+  let svg=document.getElementById('mandala-svg');
+  let data='data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">'+svg.innerHTML+'</svg>');
+  let a=document.createElement('a');a.href=data;a.download='mandala-v2.svg';a.click();
+}
+function exportPNG(){
+  let svg=document.getElementById('mandala-svg');
+  let c=document.createElement('canvas');c.width=2000;c.height=2000;
+  let ctx=c.getContext('2d');
+  let img=new Image();
+  img.onload=()=>{ctx.drawImage(img,0,0,2000,2000);let a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='mandala-v2.png';a.click()};
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">'+svg.innerHTML+'</svg>');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+(function(){
+  // Build palette grid
+  let pg=document.getElementById('palette-grid');
+  Object.entries(PALETTES).forEach(([k,p])=>{
+    let d=document.createElement('div');
+    d.className='swatch'+(k==='vivid'?' active':'');
+    d.dataset.pal=k;
+    let col=p.h.length>1?`linear-gradient(135deg,${hsl(p.h[0],p.s,p.l)},${hsl(p.h[Math.floor(p.h.length/2)],p.s,p.l)},${hsl(p.h[p.h.length-1],p.s,p.l)})`:hsl(p.h[0],p.s,p.l);
+    d.style.background=col;
+    d.title=p.name;
+    d.onclick=()=>setPalette(k);
+    pg.appendChild(d);
+  });
+  // Build presets grid
+  let pgrid=document.getElementById('presets-grid');
+  let icons={tibetan:'🕉️',lotus:'🪷',star:'⭐',celtic:'🍀',kaleidoscope:'🔮',flower:'🌸',geometric:'🔷',ocean:'🌊',flame:'🔥',neon:'💜',minimal:'⚪',sacred:'✡️'};
+  Object.keys(PRESETS).forEach(k=>{
+    let d=document.createElement('div');
+    d.className='preset';
+    d.innerHTML=`<div class="pi">${icons[k]||'◈'}</div>${k}`;
+    d.onclick=()=>applyPreset(k);
+    pgrid.appendChild(d);
+  });
+  // Build bg grid
+  let bgColors=['#0c0c1d','#0a0a0a','#100400','#041020','#0a0818','#000','#1a1a3a','#2d1b4e','#faf5ff','#fff'];
+  let bgGrid=document.getElementById('bg-grid');
+  bgColors.forEach(c=>{
+    let d=document.createElement('div');
+    d.className='swatch';d.style.background=c;
+    d.onclick=()=>{bgColor=c;document.querySelectorAll('#bg-grid .swatch').forEach(s=>s.classList.remove('active'));d.classList.add('active');gen()};
+    bgGrid.appendChild(d);
+  });
+  initPaintListeners();
+  gen();
+})();
+</script>
+</body>
+</html>

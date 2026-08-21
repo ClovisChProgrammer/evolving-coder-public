@@ -26,7 +26,6 @@ Criar estrutura de 50 capítulos, escrever conteúdo substancial (não apenas ou
 
 ### Metadata
 Source: Análise adversarial do produto — 50 problemas identificados
-Related Files: /path/to/project/README.md
+Related Files: G:\Extensão\LexPilot\README.md
 Tags: e-book, content, chapters, lexpilot, 50-chapters
 Pattern-Key: lexpilot-ebook-50chapters
-
