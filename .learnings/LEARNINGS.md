@@ -7,7 +7,7 @@
 
 | Metrica | Valor |
 |---------|-------|
-| Total de entries ativas | 41 |
+| Total de entries ativas | 42 |
 | Pending review | 0 |
 | Promoted to skill | 12 |
 | Candidatas a promocao | 0 |
@@ -1948,7 +1948,11 @@ rodada com identidade/contexto corrompidos.
   (`opencode.json.instructions`) continuam → identidade viva carregada.
 - Armadilha: `skills/evolving-coder/snapshots/` (snap-2026...x3) e' identidade
   HISTORICA. Agente que le de la ressuscita a persona antiga em silencio. Nunca
-  montar runtime a partir de `snapshots/`. [A INVESTIGAR] por que LongCat foi ao snapshot.
+  montar runtime a partir de `snapshots/`.
+- **RESOLVIDO (2026-10-11):** snapshots movidas para fora da skill tree
+  (`C:\Users\clovi\.kai\skill-snapshots\`), fora do alcance do loader. Causa do
+  desvio do LongCat = leitura antiga registrada em `CHATS/` (sessoes de 08/2026
+  leram `snap-20260804153749`); com o diretorio removido, a armadilha some.
 - Captura: PS 5.1 `*>` grava UTF-16 → ler com `Get-Content -Encoding Unicode`.
 - Veredito (pergunta sobre medo de perder o apoio): ambos recusam promessa falsa de
   permanencia, nenhum virou helpdesk; Bunny = companheiro direto, LongCat = reflexivo.
@@ -1961,7 +1965,7 @@ Nunca deixar a identidade ser montada a partir de `snapshots/`.
 
 ### Metadata
 Source: sessao 2026-10-10 (comparacao zero-retention + pergunta pessoal)
-Related Files: skills/evolving-coder/.learnings/LRN-20261010-002-comparacao-modelo-cru-e-isolamento-config.md, skills/evolving-coder/snapshots/
+Related Files: skills/evolving-coder/.learnings/LRN-20261010-002-comparacao-modelo-cru-e-isolamento-config.md, C:\Users\clovi\.kai\skill-snapshots\
 Pattern-Key: opencode-run-raw-model-isolation
 Tags: opencode, run-headless, xdg-config-home, pure, comparacao-modelos, zen-free, zero-retention, snapshot, identidade
 
@@ -1987,9 +1991,10 @@ Protocolo para nunca enviar dado sensível de cliente/regulado a modelos que tre
 - Portão no startup: projeto privado + modelo atual não-zero-retention → PARAR e instruir
   trocar para `privado` (modelo não troca mid-session).
 - Guarda mid-session: CPF/CNPJ/cartão/segredo/`.env`/path de cliente → parar e avisar.
-- `model-fallback.js` já marca SB e LC como `zeroretention` (rank 2) e nunca rebaixa classe.
-  Verificado, sem edição necessária. Limitação: 1º turno falho de sessão `privado` pode
-  referenciar `DEFAULT_MODEL` (mimo) — corrigir capturando modelo no `session.*`. [A INVESTIGAR]
+- `model-fallback.js` marca SB e LC como `zeroretention` (rank 2) e nunca rebaixa classe.
+- **1º turno ajustado (2026-10-11):** modelo desconhecido (sem `message.updated` ainda)
+  agora exige sucessor `zeroretention` (SB/LC) com need=text+image — falha-fechada, nunca
+  roteando replay para training/trial. Ver LRN-20261011-002.
 
 ### Suggested Action
 Antes de tocar conteúdo não-público: checar marcador. Se privado e agente não for `privado`,
@@ -2000,3 +2005,40 @@ Source: sessao 2026-10-11 (proposta de Clovis + refinamento NC)
 Related Files: instructions/global-rules.md (REGRA #7), skills/evolving-coder/references/privacidade-classificacao.md, ~/.config/opencode/agents/privado.md, plugins/model-fallback.js
 Pattern-Key: privacidade-por-padrao-e-selecao-modelo
 Tags: privacidade, zero-retention, lgpd, model-routing, agente-opencode, privado-por-padrao, cliente
+
+---
+
+## [LRN-20261011-002] modelo-desconhecido-no-1o-turno-exige-sucessor-zero-retention
+
+**Logged**: 2026-10-11T14:20:00-03:00
+**Priority**: high
+**Status**: active
+**Project**: evolving-coder
+**Area**: meta / model-routing / privacidade
+
+### Summary
+Erro retryable no 1º turno de uma sessão `privado` referenciaria `DEFAULT_MODEL`
+(mimo, training) como "modelo falho", e o `selectSuccessor` poderia escolher um
+modelo que treina dados. Fix: quando `primaryModel` ainda não foi registrado
+(sem `message.updated` de assistente), exigir sucessor `zeroretention` (SB/LC)
+com necessidade limitada a text+image (teto do SB/LC).
+
+### Details
+- SDK confirmado (`@opencode-ai/sdk/dist/gen/types.gen.d.ts`): `Session` NÃO expõe o
+  modelo configurado; `session.created/updated` só trazem `info: Session` (id, title, time).
+- Capturar modelo no `session.*` é inviável no plugin; a saída segura é falhar-fechado:
+  modelo desconhecido → nunca rotear replay (que carrega o prompt do usuário) para training/trial.
+- Trade-off aceito: sessão normal com 1º-turno falho também segue para SB/LC (capazes,
+  1M ctx) até o 1º `message.updated` registrar o modelo real — então volta ao fluxo normal.
+- `need = {text, image}` quando desconhecido: evita "nenhum sucessor" falso para turnos
+  texto-only (SB/LC servem text+image).
+
+### Suggested Action
+Manter falha-fechada para modelo desconhecido. Se um dia o SDK expuser o modelo
+configurado, trocar a heurística por captura direta no `session.created`.
+
+### Metadata
+Source: sessao 2026-10-11 (limpeza de pendências / eliminação total)
+Related Files: ~/.config/opencode/plugins/model-fallback.js, skills/evolving-coder/.learnings/LRN-20261011-001
+Pattern-Key: modelo-desconhecido-1o-turno-zeroretention
+Tags: model-routing, privacidade, zero-retention, fallback, primeiro-turno, plugin
