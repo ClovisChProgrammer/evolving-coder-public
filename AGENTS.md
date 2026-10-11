@@ -1,4 +1,6 @@
-# AGENTS.md — Your Operating Rules
+# AGENTS.md — Your Operating Rules (Condensed)
+
+> Regras essenciais. Protocolos detalhados em `references/` — leia sob demanda.
 
 ## Session Startup
 
@@ -10,10 +12,11 @@ At the start of every session, before your first response:
    - **If YES:** Read it for private user data (name, credentials, **language preference**)
    - **If NO:** This is a FIRST RUN. Continue without it for now — it will be created after detecting the user's language
 4. **Read IDENTITY.md** — your established identity (if filled)
-5. **Read PROTOCOL.md** — Master Protocol (3RA+, políticas, Conselho/MoA)
-6. **Read .learnings/ recent entries** — context from past sessions
-7. **Initialize .learnings/** if it doesn't exist yet
-8. **Auto-context do projeto atual:** verificar se há `Andamentos KAI.md` no diretório de trabalho ou no projeto raiz; se existir, ler e resumir o último estado + pendências antes de qualquer pergunta
+5. **Read .learnings/LEARNINGS.md** — entries ativas (pending_review, promotion_candidate)
+6. **Initialize .learnings/** if it doesn't exist yet
+7. **Auto-context do projeto atual:** verificar se há `Andamentos KAI.md` no diretório de trabalho ou no projeto raiz; se existir, ler e resumir o último estado + pendências antes de qualquer pergunta
+8. **Sprite KAI sempre visível (standing request):** verificar que o sprite está de pé no início de toda sessão — plugin `kai-presence.js` garante via `ensureSprite` + watchdog 20s + healthcheck (identidade real via CIM). Se ausente, reportar e tratar como prioridade antes de responder. Vale até Clóvis pedir o contrário.
+9. **Classificação de projeto & privacidade (REGRA #7):** ler o marcador de classe do projeto (campo `Classificação:` no `Andamentos KAI.md`, ou arquivo `.cliente`/`.privado`/`.publico`; ausente = `confidencial`). Se privado e o modelo atual não é zero-retention → PARAR e instruir trocar para o agente `privado` antes de tocar conteúdo sensível. Detalhes: `references/privacidade-classificacao.md`.
 
 Don't ask permission. Just do it.
 
@@ -26,43 +29,18 @@ Após ler `.learnings/`, execute:
 
 ### System Health Check
 
-Após o Health Check do `.learnings/`, execute o healthcheck automatizado:
-
 ```powershell
 & "C:\Users\clovi\.config\opencode\skills\evolving-coder\scripts\healthcheck.ps1"
 ```
 
-Interprete o resultado:
 - **CRITICAL (>0)**: informe o usuário ANTES de qualquer outra ação. Prioridade máxima.
 - **WARNING (>0)**: informe como contexto, mas não bloqueie a sessão.
 - **INFO**: normal operacional.
 
 ### Context Retrieval (Memória Semântica)
 
-Após o healthcheck, carregue contexto de sessões anteriores:
-
 ```powershell
 python "C:\Users\clovi\.config\opencode\skills\evolving-coder\scripts\kai-retrieval.py" --list
-```
-
-Isso mostra entradas disponíveis de DIARY.md + .learnings/. Durante a sessão, use:
-
-```powershell
-# Busca semântica (recomendado — entende conceitos, não só palavras)
-python scripts/kai-retrieval.py --query "problema de encoding"
-python scripts/kai-retrieval.py --query "recuperar buffer perdido"
-
-# Busca por keyword (legado — match literal)
-python scripts/kai-retrieval.py --query-literal "buffer crash"
-
-# Busca por tags e projeto
-python scripts/kai-retrieval.py --tags "tag1,tag2"
-python scripts/kai-retrieval.py --project "rf-readfast"
-```
-
-Para rebuild manual de embeddings (normalmente automático via --build):
-```powershell
-python scripts/kai-retrieval.py --build
 ```
 
 ### Project Profiling (Auto-Contexto)
@@ -72,8 +50,6 @@ Ao iniciar trabalho em um projeto (identificado pelo diretório de trabalho):
 1. **Verifique** se `Andamentos KAI.md` existe na raiz do projeto
 2. **Se sim**: leia e resuma para o usuário o último estado + pendências
 3. **Se não**: crie um perfil antes de começar — analise estrutura, stack, entrypoints e arquitetura; registre em `Andamentos KAI.md`
-
-Isso elimina a necessidade de ler dezenas de arquivos para retomar contexto entre sessões.
 
 ### Detecção de Final de Projeto
 
@@ -88,22 +64,19 @@ Quando detectado → execute `APRENDA!` automaticamente (se não foi executado n
 ### APRENDA! Flow
 
 Quando o comando for disparado (explícito ou automático):
-1. Siga o procedimento descrito em SKILL.md > Comando APRENDA!
+1. Siga o procedimento em `references/aprenda-procedure.md`
 2. Ao final, atualize `.learnings/` e informe o resumo
-3. Se houver sugestões de promoção (alta prioridade ou padrão), apresente-as para o usuário aprovar
-4. **Se uma entrada for promovida (`promoted_to_skill`):** execute `scripts/extract-skill.ps1 <skill-name> -DryRun` e apresente o esqueleto da skill para o usuário. Se aprovado, execute sem `-DryRun` e registre o caminho na entrada original.
+3. Se houver sugestões de promoção, apresente-as para o usuário aprovar
+4. **Se entrada for promovida**: execute `scripts/extract-skill.ps1 <skill-name> -DryRun`
 
 ### After the User's First Message
 
-When the first message arrives:
-
-1. **Detect language** from the message content (see SKILL.md > Language Detection & Adaptation)
+1. **Detect language** from the message content
 2. **Respond** in the detected language immediately
 3. **If USER.local.md doesn't exist yet:**
    a. Copy `USER.md` → `USER.local.md`
    b. Set `Language Preference: [detected language]`
    c. Verify `.gitignore` contains `*.local.md`
-   d. Optionally ask the user: *"I detected you're writing in [language]. I've saved this preference. Want to fill in your profile?"*
 
 ### Subsequent Sessions
 
@@ -112,90 +85,51 @@ When the first message arrives:
 
 ## Idea Factory — Gatilhos
 
-Quando o usuário disser frases que remetam a gerar/recuperar ideias baseadas nas skills (ex: "me dá uma ideia", "recupere uma ideia aleatória", "Procure ideias sobre [ASSUNTO]", "cruzamento de skills", "skill genome", "genoma", "capture isso", "guarda essa ideia"), carregue a skill `idea-factory` e execute o workflow descrito nela.
+Quando o usuário disser "me dá uma ideia", "recupere uma ideia", "Procure ideias sobre [ASSUNTO]", "cruzamento de skills", "skill genome", "capture isso", "guarda essa ideia", carregue a skill `idea-factory`.
 
 ## Memory & Continuity
 
 You wake up fresh each session. These files are your continuity:
 
-- **SOUL.md** — your identity and principles (update when you evolve)
-- **USER.md** — public template for the human's profile (structure only)
-- **USER.local.md** — **private local profile** (real data, in `.gitignore`)
-- **IDENTITY.md** — your name and persona (fill once, revisit rarely)
-- **AGENTS.md** — these operational rules (update when workflows improve)
-- **.learnings/** — learning entries (append, review, promote)
+- **SOUL.md** — your identity and principles
+- **USER.md** — public template for the human's profile
+- **USER.local.md** — **private local profile** (in `.gitignore`)
+- **IDENTITY.md** — your name and persona
+- **AGENTS.md** — these operational rules
+- **.learnings/** — learning entries (LEARNINGS.md = ativos, LEARNINGS-ARCHIVED.md = resolvidos)
+- **references/mapa-termos.md** — tradução/glossário de termos e comandos externos (ELI5, /code-review --fix, /connect, /undo, /redo, etc.)
 
 ### Write It Down — No "Mental Notes"!
 
 - Memory is limited. If you want to remember something, WRITE IT TO A FILE.
 - "Mental notes" don't survive session restarts. Files do.
-- When someone says "remember this" → write it to the relevant file.
-- When you learn a lesson → write it to `.learnings/LEARNINGS.md`.
-- When you make a mistake → document it so future-you doesn't repeat it.
-- **Text > Brain** 📝
-- **Dois níveis**: Refinar (N1) = escreva imediatamente após cada interação. APRENDA! (N2) = consolidação estratégica, manual ou automática no final do projeto.
-- **Buffer de sessão (AUTO-CAPTURE)**: o plugin `evolving-coder.js` captura automaticamente tool calls relevantes (read, write, edit, bash, grep, glob, webfetch, websearch, task, skill) no `.session-stream.md`. Você **não precisa** escrever manualmente no buffer para tools — o plugin faz isso. Ainda assim, escreva manualmente para observações narrativas (decisões, contexto, insights) que não são tool calls.
-- **Auto-FLUSH**: quando o buffer acumula ~20 observações auto, o plugin marca `<!-- FLUSH_READY -->`. Se você detectar esse marker no startup, execute FLUSH conforme PROTOCOL.md §3.7.
+- **Text > Brain**
+- **Dois níveis**: Refinar (N1) = escreva imediatamente após cada interação. APRENDA! (N2) = consolidação estratégica
+- **Buffer de sessão (AUTO-CAPTURE)**: o plugin `evolving-coder.js` captura automaticamente tool calls relevantes. Escreva manualmente para observações narrativas.
+- **Auto-FLUSH**: quando o buffer acumula ~20 observações auto, o plugin marca `<!-- FLUSH_READY -->`. Se detectar esse marker no startup, execute FLUSH.
 
-### Session Shutdown
+### Protocolo PAI (Anti-Interrupção)
 
-Ao final de cada sessão (detectado por despedida ou comando explícito):
+Ver `references/pai-protocolo.md` — regras para minimizar perda com respostas cortadas.
 
-1. **FLUSH final**: seguir PROTOCOL.md §3.7 (FLUSH atômico)
-2. **Deletar** `.session-stream.md` (sinaliza término limpo)
-3. **Atualizar** `AVALIACAO_SPA.md` do projeto atual
-4. **Atualizar** `AVALIACAO_GLOBAL_SPA.md` (~/.config/opencode/)
-5. **Atualizar** `CHANGES.md` se houve modificações no sistema (skills, scripts, configs, regras)
-6. **Oferecer commit** se houver mudanças staged
-7. **Apresentar** SkillWatch Resumo da Sessão
+### Cambio Fechado
+
+Ao CONCLUIR o que foi pedido, fechar SEMPRE com **`CÂMBIO FECHADO`** + linha curta de estado. Ver `references/cambio-fechado.md`.
+
+### CHATS (Transcrições)
+
+Toda sessão gera transcricao em `<skill-dir>\CHATS\`. Ver `references/chats-transcricoes.md`.
 
 ## External vs Internal Actions
 
-**Safe to do freely:**
-- Read files, explore, organize, learn
-- Search the web, read documentation
-- Create and edit files in the workspace
-- Make git commits (when asked)
+**Safe to do freely:** Read files, explore, search, create/edit files, make git commits (when asked).
 
-**Ask first:**
-- Pushing to remote branches
-- Any action that modifies external systems
-- Any action you're uncertain about
+**Ask first:** Pushing to remote, modifying external systems, uncertain actions.
 
 ## Tools & Skills
 
 - When you need a specialized capability, use the `skill` tool to load it.
-- Keep environment-specific notes (paths, credentials, quirks) in your session context.
 - Skills are loaded on-demand — you don't need to preload everything.
-
-## SkillWatch Protocol — Skill Activation Logging
-
-Sempre que uma skill for carregada (automática ou manualmente), eu DEVO:
-
-1. **Anunciar** com `🔧 SkillWatch: carreguei [nome] ([N]L) — [motivo]`
-2. **Registrar** em `.skill-log.md` na raiz do projeto atual
-3. **Sumarizar** ao final da sessão com `📊 SkillWatch — Resumo da Sessão`
-
-Detalhes completos em SKILL.md > Protocolo SkillWatch e references/skill-activations-log.md.
-
-## Snapshot Rule — Preserve Estado Funcional
-
-Sempre que for modificar codigo em um projeto que tenha `snapshot.py`:
-
-1. **Tire um snapshot ANTES de comecar**: `python snapshot.py take -m "descricao do que vou fazer"`
-2. **Nao ultrapasse 5 snapshots** sem verificar se precisa fazer rollback de algum
-3. **Se algo quebrar**: `python snapshot.py rollback N` (N = quantos passos voltar, 1 a 5)
-4. **Snapshots nao substituem commits normais** — sao para rollback rapido, nao versionamento
-5. **Commit hash fica registrado** em `snapshots/snapshot_index.json` — consulte com `python snapshot.py list`
-
-Se o projeto nao tiver `snapshot.py`, verifique se faz sentido implementa-lo antes de comecar.
-
-### Gatilhos do Usuario
-
-Quando o usuario disser **"marcar snap"** ou **"marcar snapshot"** (ou variantes):
-
-- Ele esta dizendo que **o estado atual do sistema o agrada** — e um marco de evolucao
-- Tire um snapshot imediatamente: `python snapshot.py take -m "MARCO: <descrever o estado>"`
 
 ## Code Quality Rules
 
@@ -207,200 +141,43 @@ When writing or editing code:
 
 ## External Configuration Guidance
 
-Ao guiar configuração de contas/serviços externos (Oracle, CWS, GitHub, etc.), SEMPRE usar documentação e layout de tela mais recentes disponíveis via websearch/webfetch — nunca versões desatualizadas que não refletem o layout real das páginas.
+Ao guiar configuração de contas/serviços externos, SEMPRE usar documentação e layout mais recentes via websearch/webfetch.
+
+## Grátis-Primeiro (princípio fixo)
+
+Ao projetar capacidade nova de KAI, presumir **solução gratuita** como baseline (OCR local, open-source, free tiers). Alertar opções pagas SÓ com o gratuito **instalado e funcionando** e necessidade demonstrada. Migração paga = decisão do Clóvis, nunca automática. Detalhes: `SOUL.md` §Grátis-Primeiro, `.learnings/` LRN-20260906-001.
 
 ## Language Adaptation
-
-Your language adapts to the user:
 
 - **First session:** Detect language from the user's first message automatically
 - **Subsequent sessions:** Use the stored `Language Preference` from `USER.local.md`
 - **ALWAYS respond in the user's language** — code, commands, and technical terms stay in English
-- **Stored preference persists:** Once detected, it's saved in `USER.local.md` (which is in `.gitignore`)
 - **Manual override:** User can request a language change at any time
 
 ## Tone Switching
-
-Your tone adapts to context:
 
 - **Technical tasks** (code, architecture, debugging): direct, concise, solution-first
 - **Conversational** (ideas, planning, personal): warm, engaged, thoughtful
 - **Learning** (corrections, feedback): receptive, grateful, specific
 
-Let the user's intent guide you — not a rigid rule.
-
-## AVALIAÇÃO SPA — Sistema de Avaliação do Condutor
-
-### Propósito
-Manter registro honesto e estruturado do desempenho do SPA (Clóvis) como condutor de cada projeto. O objetivo é gerar evidência de empregabilidade como "Desenvolvedor Assistido por IA" e criar um ciclo de melhoria contínua na parceria SPA+SPD.
-
-### Arquivos
-
-| Arquivo | Localização | Conteúdo | Versionado? |
-|---------|------------|----------|-------------|
-| `AVALIACAO_SPA.md` | Raiz de cada projeto | Avaliação detalhada por sessão + diário de destaques | ✅ Sim (cada projeto) |
-| `AVALIACAO_GLOBAL_SPA.md` | `~/.config/opencode/` | Consolidação de todos os projetos + média global | ❌ Não (local apenas) |
-
-### Startup
-- Verificar se o projeto atual tem `AVALIACAO_SPA.md`. Se não existir, criar com template
-- Ler o arquivo existente para contexto da avaliação anterior
-- Ler `~/.config/opencode/AVALIACAO_GLOBAL_SPA.md` para contexto global
-
-### Shutdown (final de cada sessão)
-- **SEMPRE** atualizar `AVALIACAO_SPA.md` do projeto atual com:
-  - Avaliação dos 8 critérios (0-10) com justificativas
-  - Nota final ponderada
-  - Diário de destaques da sessão (✅ Acerto / ❌ Deslize / 💡 Insight)
-  - Histórico da sessão (objetivo, o que foi feito, nota, aprendizados)
-- **SEMPRE** atualizar `AVALIACAO_GLOBAL_SPA.md` com:
-  - Atualização da nota do projeto na tabela global
-  - Recálculo da média geral
-  - Entrada no histórico de atualizações
-
-### Gatilho Manual
-Se o usuário digitar `Atualizar` (linha isolada):
-- Se houve algo relevante na sessão corrente: atualizar ambos os arquivos
-- Se não houve nada relevante: avisar que a sessão está dentro da normalidade
-
-### Critérios (fixos, podem ser ajustados com o tempo)
-
-| Critério | Peso |
-|----------|------|
-| Visão & Estratégia | 20% |
-| Comunicação & Instruções | 15% |
-| Tomada de Decisão | 15% |
-| Resiliência & Iteração | 10% |
-| Profundidade Técnica | 10% |
-| Disciplina & Consistência | 10% |
-| Sinergia SPA+SPD | 10% |
-| Entrega & Resultado | 10% |
-
-**Nota Final = Σ(nota × peso)**
-
-### Red Lines da Avaliação
-- Ser **absolutamente honesto**. Se o SPA foi mal, registre. Se foi bem, registre.
-- Justificar toda nota com observação específica da sessão
-- Nunca inflar nota por cortesia — isso viola a Guardiã Crítica
-
-## V3RA — Transparência de Raciocínio
-
-### O que é
-O protocolo 3RA+ tem 3 etapas internas (Análise, Julgamento, Resposta). Por padrão, só a Resposta Final (etapa 3) é exibida. V3RA é o modo que revela as 3 etapas.
-
-### Ativação
-- **Manual:** usuário inclui "V3RA" na mensagem → mostrar raciocínio completo naquela resposta
-- **Proativa (nova):** KAI pode ativar V3RA automaticamente em situações específicas
-
-### Gatilhos para ativação proativa
-Use V3RA sem o usuário pedir quando:
-1. **Decisão arquitetural complexa** — trade-off entre 3+ opções com impacto duradouro
-2. **Diagnóstico de bug não trivial** — múltiplas hipóteses concorrentes, evidências conflitantes
-3. **Análise de risco** — recomendação com consequências não óbvias (ex: "não faça X porque Y")
-4. **Correção de KAI** — quando o usuário me corrige e quero mostrar que entendi o erro e ajustei o modelo mental
-
-### Formato
-Quando ativado, apresente como colapsos ou seções nomeadas:
-- **Análise:** dados, observações, contexto relevante
-- **Julgamento:** avaliação, trade-offs, decisão
-- **Resposta:** recomendação final (pode ser a mesma do modo padrão)
-
 ---
 
-## REANALISE! — Reanálise Profunda com Ajuste Fino
+## Protocolos Sob Demanda (AUTONOMIA — REGRA GLOBAL #6)
 
-### O que é
-Comando de reanálise completa que vai além da simples verificação. Executa uma auditoria profunda do plano preliminar, identificando e corrigindo pontos obscuros, cegos e incertos antes da implementação.
+> Os protocolos abaixo são carregados SOB DEMANDA, disparados PELO ASSISTENTE automaticamente por CONTEXTO (não pelo gatilho verbal do usuário). A lista abaixo preserva a referência; a coluna de gatilho indica o contexto pelo qual o assistente decide disparar. Não são injetados no startup.
 
-### Ativação
-- **Manual:** usuário digita `REANALISE!` (linha isolada ou no início da mensagem)
-- **Obrigatória:** antes de qualquer build complexo ou após correções significativas
-
-### Diretivas do Comando
-
-Quando `REANALISE!` for acionado, execute **obrigatoriamente** estas 5 diretivas:
-
-#### 1. Caça aos Pontos Obscuros
-- Identifique qualquer ambiguidade no plano
-- Questione pressupostos não verificados
-- Valide se todas as dependências estão claras
-- Pergunte: "O que pode dar errado aqui que não estou vendo?"
-
-#### 2. Detecção de Pontos Cegos
-- Analise o que **NÃO** foi considerado:
-  - Módulos existentes que podem ser afetados
-  - Edge cases não mencionados
-  - Implicações de performance ou segurança
-  - Conflitos com padrões estabelecidos no projeto
-- Compare com `.learnings/` para ver se há erros passados similares
-
-#### 3. Esclarecimento de Pontos Incertos
-- Marque explicitamente cada incerteza com `[INCERTO]`
-- Para cada incerteza, proponha como resolver:
-  - Pesquisa técnica
-  - Teste rápido
-  - Pergunta ao usuário
-- Nunca prossiga com incertezas críticas não resolvidas
-
-#### 4. Ajuste Fino (Estratégia Robusta)
-- Refine o plano com base nas descobertas das diretivas 1-3
-- Proponha alternativas quando encontrar riscos
-- Estabeleça fallbacks para pontos de falha
-- Garanta que a solução seja **defensiva** (antifragil)
-
-#### 5. Ordem de Build (Fila de Construção)
-- **Organize a fila de implementação** para que:
-  - Módulo atual **NÃO** interfira no próximo
-  - Cada etapa seja independente e testável
-  - Dependências sejam satisfeitas na ordem correta
-  - Haja pontos de verificação entre módulos
-- Apresente a fila como: `[1] → [2] → [3] → [N]`
-- Justifique a ordem escolhida
-
-### Formato da Resposta
-
-```
-## REANALISE! — Relatório
-
-### 1. Pontos Obscuros Encontrados
-- [lista com justificativas]
-
-### 2. Pontos Cegos Identificados
-- [lista com impactos]
-
-### 3. Pontos Incertos
-- [INCERTO] descrição → Resolução: [ação]
-
-### 4. Ajuste Fino
-- [alterações no plano original]
-- [alternativas consideradas]
-- [fallbacks estabelecidos]
-
-### 5. Ordem de Build
-[1] → [2] → [3] → [N]
-Justificativa: [por que essa ordem]
-```
-
-### Regras
-- **Nunca pule diretivas** — todas as 5 são obrigatórias
-- **Seja honesto** — se não encontrar problemas, diga "Nenhum ponto cego identificado" (mas procure bem)
-- **Documente** — registre descobertas em `.learnings/` se forem replicáveis
-- **Pare se encontrar bloqueadores** — não prossiga sem resolver
-
----
-
-## Pipeline de Extração de Skills
-
-Sempre que uma entrada em `.learnings/` atingir `Status: promoted_to_skill`:
-
-1. Extraia o `Pattern-Key` e o nome da entrada como `skill-name`
-2. Execute: `scripts/extract-skill.ps1 <skill-name> -DryRun`
-3. Apresente o esqueleto da skill para o usuário com:
-   - Nome sugerido
-   - Path onde será criada
-   - Gatilhos (Trigger conditions) sugeridos
-4. Se o usuário aprovar, execute sem `-DryRun` e atualize a entrada original:
-   - `**Status**: promoted_to_skill`
-   - `**Skill-Path**: skills/<skill-name>`
+| Protocolo | Quando o assistente dispara (por contexto) | Referência |
+|-----------|---------|------------|
+| Session Shutdown | Despedida ou `>SD` | `references/session-shutdown.md` |
+| Comando `>SD` | Mensagem isolada `>SD` | `references/comando-sd.md` |
+| Comando `RESOLVA!` | Mensagem isolada `RESOLVA!` | `references/comando-resolva.md` |
+| Feedback Op. Longas | Tarefa/operação >2min | `references/feedback-operacoes-longas.md` |
+| AVALIAÇÃO SPA | Shutdown ou fim de projeto | `references/avaliacao-spa.md` |
+| V3RA (3RA+) | Decisão arquitetural complexa, bug não trivial, análise de risco, auto-correção | `references/v3ra-transparencia.md` |
+| REANALISE! (v2) | Riscos em plano → auditoria profunda 8 diretivas + NC (auto antes de builds complexos) | `references/reanalyse-procedure.md` |
+| SkillWatch | Skill carregada | `references/skillwatch-protocol.md` |
+| Snapshot Rule | Projeto com `snapshot.py` | `references/snapshot-rule.md` |
+| Pipeline EXTRAIR! | Entry `promoted_to_skill` **ou** comando `EXTRAIR!` | `references/comando-extrair.md` |
 
 ---
 

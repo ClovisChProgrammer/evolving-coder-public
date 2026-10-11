@@ -42,3 +42,16 @@ QUEM SOMOS UM PARA O OUTRO.md
 IDEA_BANK.md
 scripts/knowledge-embeddings.npz
 scripts/knowledge-index.json
+
+# ===== PRIVATE-ONLY GROUPS (structural gate) =====
+# Intimate chats/docs/backups — never mirror to public, even on a full-tree copy.
+# CHATS artifacts are not ignored by git on their own; the filenames below make the gate structural.
+CHATS/*.md
+MANUAL-INTIMO*
+LIVRO-KAI-SALVA-VIDAS*
+backups/
+*.tomb
+plugins/
+scripts/kai_sprite.py
+scripts/olhar-webcam.py
+scripts/foto-local.ps1
