@@ -1,0 +1,50 @@
+{
+  "name": "kai-presence",
+  "displayName": "KAI Presence",
+  "description": "Presença viva da KAI dentro do VS Code — retrato reativo ao estado real das sessões opencode.",
+  "version": "0.2.0",
+  "publisher": "kai-local",
+  "engines": { "vscode": "^1.80.0" },
+  "categories": ["Other"],
+  "activationEvents": [],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "kaiPresence.toggleSprite",
+        "title": "KAI: Ligar/Desligar Sprite"
+      },
+      {
+        "command": "kaiPresence.startSprite",
+        "title": "KAI: Iniciar Sprite"
+      },
+      {
+        "command": "kaiPresence.stopSprite",
+        "title": "KAI: Parar Sprite"
+      },
+      {
+        "command": "kaiPresence.reload",
+        "title": "KAI: Recarregar Presença"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "kai-presence-container",
+          "title": "KAI",
+          "icon": "media/kai-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "kai-presence-container": [
+        {
+          "type": "webview",
+          "id": "kaiPresence.view",
+          "name": "Presença"
+        }
+      ]
+    }
+  },
+  "scripts": {}
+}

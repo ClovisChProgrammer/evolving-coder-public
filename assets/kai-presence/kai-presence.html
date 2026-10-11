@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KAI — Presença</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: radial-gradient(ellipse at 50% 30%, #0b1626 0%, #060b14 60%, #04070d 100%);
+    overflow: hidden;
+    font-family: "Segoe UI", sans-serif;
+  }
+  .stage {
+    position: relative;
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .aura {
+    position: absolute;
+    width: 130%; max-width: 480px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--aura-color) 0%, transparent 62%);
+    opacity: 0.55;
+    filter: blur(28px);
+    transition: background 1.4s ease;
+    animation: breathe 5.2s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { transform: scale(0.94); }
+    50% { transform: scale(1.06); }
+  }
+  .water-blob {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(circle, var(--aura-color) 0%, transparent 70%);
+    opacity: 0.10;
+    filter: blur(18px);
+    transition: background 1.4s ease;
+    z-index: 0;
+  }
+  .wb1 { width: 42%; aspect-ratio: 1; top: 8%; left: 4%;  animation: driftA 23s ease-in-out infinite alternate; }
+  .wb2 { width: 34%; aspect-ratio: 1; bottom: 6%; right: 5%; animation: driftB 29s ease-in-out infinite alternate; }
+  @keyframes driftA {
+    0%   { transform: translate(0, 0) scale(1); }
+    50%  { transform: translate(6%, 9%) scale(1.18); }
+    100% { transform: translate(-5%, 14%) scale(0.92); }
+  }
+  @keyframes driftB {
+    0%   { transform: translate(0, 0) scale(1); }
+    50%  { transform: translate(-8%, -7%) scale(1.22); }
+    100% { transform: translate(6%, -12%) scale(0.88); }
+  }
+  .portrait-wrap {
+    position: relative;
+    height: 88%;
+    max-height: 520px;
+    aspect-ratio: 768 / 1376;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 0 42px -6px var(--aura-color);
+    transition: box-shadow 1.4s ease;
+    z-index: 1;
+  }
+  .portrait-wrap img,
+  .portrait-wrap video {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: top center;
+    transition: opacity 0.9s ease, filter 1.2s ease, transform 1.2s ease;
+  }
+  .portrait-wrap.alive img { animation: microBreathe 6s ease-in-out -1.4s infinite; }
+  .portrait-wrap.tremor img { animation: tremor 0.35s linear infinite; }
+  .portrait-wrap.img-swap img, .portrait-wrap.img-swap video { opacity: 0.25; }
+  #fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; }
+  .portrait-wrap .tint {
+    position: absolute; inset: 0;
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+    transition: background 1.2s ease, opacity 1.2s ease;
+    z-index: 2;
+  }
+  @keyframes microBreathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.012); }
+  }
+  @keyframes tremor {
+    0% { transform: translate(0, 0); }
+    25% { transform: translate(1px, -1px); }
+    50% { transform: translate(-1px, 1px); }
+    75% { transform: translate(1px, 1px); }
+    100% { transform: translate(0, 0); }
+  }
+  .hud {
+    position: absolute;
+    bottom: 10px; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 12px;
+    pointer-events: none;
+    z-index: 5;
+  }
+  .state-label {
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--aura-color);
+    text-shadow: 0 0 8px var(--aura-color);
+    transition: color 1s ease;
+  }
+  .detail-label {
+    font-size: 9px; color: #5d7285; margin-top: 2px;
+  }
+  .pause-btn {
+    pointer-events: auto;
+    background: rgba(10, 20, 32, 0.75);
+    border: 1px solid #24405c;
+    color: #7fa8c4;
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    z-index: 6;
+  }
+  .pause-btn:hover { border-color: #35e0f2; color: #35e0f2; }
+  .hud-btns { display: flex; gap: 6px; }
+  .milestone-flash {
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 40%, rgba(255,233,168,0.85), transparent 70%);
+    opacity: 0; pointer-events: none;
+    z-index: 4;
+  }
+  .milestone-flash.on { animation: flash 1.6s ease-out; }
+  @keyframes flash {
+    0% { opacity: 0; } 18% { opacity: 0.9; } 100% { opacity: 0; }
+  }
+  body.paused * { animation-play-state: paused !important; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="aura" id="aura"></div>
+  <div class="water-blob wb1"></div>
+  <div class="water-blob wb2"></div>
+  <div class="portrait-wrap alive" id="portraitWrap">
+    <img id="portrait" src="../kai-self-portrait-v3.png" alt="KAI">
+    <video id="exprVid" autoplay muted loop playsinline style="display:none"></video>
+    <div class="tint" id="tint"></div>
+    <canvas id="fx"></canvas>
+  </div>
+  <div class="milestone-flash" id="flash"></div>
+  <div class="hud">
+    <div>
+      <div class="state-label" id="stateLabel">iniciando…</div>
+      <div class="detail-label" id="detailLabel"></div>
+    </div>
+    <div class="hud-btns">
+      <button class="pause-btn" id="reloadBtn">🔄 recarregar</button>
+      <button class="pause-btn" id="pauseBtn">⏸ pausar</button>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  const vsCodeApi = typeof acquireVsCodeApi === "function" ? acquireVsCodeApi() : null;
+  const STATES = {
+    idle:      { label: "aguardando você", hex: "#1fb6c9", rgb: [31,182,201],  expr: "calma",   filter: "none",                                                            tintOp: 0.18, hold: 0,
+                 fx: { mode: "rise",  spawn: 0.9,  speed: [6, 14],  jitter: 0.15 } },
+    thinking:  { label: "pensando",        hex: "#9d7bff", rgb: [157,123,255], expr: "pensando",   filter: "hue-rotate(18deg) brightness(1.08) saturate(1.25)",               tintOp: 0.30, hold: 45,
+                 fx: { mode: "flow",  spawn: 3.2,  speed: [10, 26], jitter: 0.4 } },
+    speaking:  { label: "respondendo você", hex: "#57f2c8", rgb: [87,242,200], expr: "sorriso", filter: "brightness(1.16) saturate(1.35)",                                 tintOp: 0.26, hold: 45,
+                 fx: { mode: "rise",  spawn: 4.5,  speed: [12, 28], jitter: 0.22 } },
+    reading:   { label: "lendo dados",     hex: "#35e0f2", rgb: [53,224,242],  expr: "leitura", filter: "brightness(1.14) saturate(1.55)",                                 tintOp: 0.30, hold: 45,
+                 fx: { mode: "flow",  spawn: 6,    speed: [18, 38], jitter: 0.25 } },
+    working:   { label: "trabalhando",     hex: "#ffb347", rgb: [255,179,71],  expr: "chave",   filter: "sepia(0.5) hue-rotate(-8deg) saturate(1.65) brightness(1.07)",    tintOp: 0.34, hold: 45,
+                 fx: { mode: "rise",  spawn: 9,    speed: [30, 62], jitter: 0.35, sparks: true } },
+    error:     { label: "erro detectado",  hex: "#ff5a5a", rgb: [255,90,90],   expr: "furia",   filter: "sepia(0.65) hue-rotate(-42deg) saturate(2.3) contrast(1.18)",     tintOp: 0.44, hold: 60,
+                 fx: { mode: "chaos", spawn: 13,   speed: [40, 95], jitter: 0.85 } },
+    milestone: { label: "marco alcançado", hex: "#ffe9a8", rgb: [255,233,168], expr: "sorriso", filter: "brightness(1.32) saturate(1.5)",                                  tintOp: 0.42, hold: 8,
+                 fx: { mode: "burst", spawn: 2,    speed: [10, 20], jitter: 0.2 } },
+    shutdown:  { label: "encerrando…",     hex: "#233043", rgb: [159,199,232], expr: "sono",    filter: "grayscale(0.85) brightness(0.45) contrast(0.92)",                 tintOp: 0.60, hold: 0,
+                 fx: { mode: "snow",  spawn: 4,    speed: [8, 18],  jitter: 0.1 } },
+  };
+  const STALE_MS = 120000;
+  const MAX_PARTICLES_START = 220;
+
+  const aura = document.getElementById("aura");
+  const stateLabel = document.getElementById("stateLabel");
+  const detailLabel = document.getElementById("detailLabel");
+  const portrait = document.getElementById("portrait");
+  const exprVid = document.getElementById("exprVid");
+  const wrap = document.getElementById("portraitWrap");
+  const tint = document.getElementById("tint");
+  const flash = document.getElementById("flash");
+  const pauseBtn = document.getElementById("pauseBtn");
+  const reloadBtn = document.getElementById("reloadBtn");
+  const canvas = document.getElementById("fx");
+  const ctx = canvas.getContext("2d");
+
+  let current = null;
+  let currentDetail = "";
+  let paused = false;
+  let lastTs = 0;
+  let hasLiveSource = false;
+  let curVideoUrl = "";
+  let curImgUrl = "";
+  let stateToken = 0;
+
+  /* ===================== ASSET RESOLVER (.webm > .webp > .png) ===================== */
+  const assetCache = new Map();
+
+  function probeImage(url) {
+    return new Promise(res => {
+      const im = new Image();
+      im.onload = () => res(true);
+      im.onerror = () => res(false);
+      im.src = url;
+    });
+  }
+
+  function probeVideo(url) {
+    return new Promise(res => {
+      const v = document.createElement("video");
+      v.preload = "metadata";
+      v.muted = true;
+      const done = ok => { v.onloadeddata = null; v.onerror = null; v.removeAttribute("src"); res(ok); };
+      v.onloadeddata = () => done(true);
+      v.onerror = () => done(false);
+      v.src = url;
+    });
+  }
+
+  const CACHE_BUST = String(Date.now());
+  const NEG_TTL_MS = 15000;
+
+  function resolveAsset(expr) {
+    const hit = assetCache.get(expr);
+    if (hit && (hit.found || Date.now() - hit.ts < NEG_TTL_MS)) return Promise.resolve(hit.found);
+    return (async () => {
+      let found = null;
+      const q = `?v=${CACHE_BUST}`;
+      if (await probeVideo(`./kai-expr-${expr}.webm${q}`)) found = { kind: "video", url: `./kai-expr-${expr}.webm${q}` };
+      else if (await probeImage(`./kai-expr-${expr}.avif${q}`)) found = { kind: "image", url: `./kai-expr-${expr}.avif${q}` };
+      else if (await probeImage(`./kai-expr-${expr}.webp${q}`)) found = { kind: "image", url: `./kai-expr-${expr}.webp${q}` };
+      else if (await probeImage(`./kai-expr-${expr}.png${q}`)) found = { kind: "image", url: `./kai-expr-${expr}.png${q}` };
+      assetCache.set(expr, { found, ts: Date.now() });
+      return found;
+    })();
+  }
+
+  function applyAsset(asset, name) {
+    if (asset && asset.kind === "video") {
+      if (curVideoUrl !== asset.url) { curVideoUrl = asset.url; exprVid.src = asset.url; }
+      exprVid.style.display = "";
+      exprVid.style.filter = STATES[name].filter || "none";
+      portrait.style.display = "none";
+      portrait.style.filter = "none";
+      const p = exprVid.play(); if (p && p.catch) p.catch(() => {});
+    } else if (asset && asset.kind === "image") {
+      exprVid.style.display = "none";
+      if (exprVid.pause) exprVid.pause();
+      if (curImgUrl !== asset.url) { curImgUrl = asset.url; portrait.src = asset.url; }
+      portrait.style.display = "";
+      portrait.style.filter = STATES[name].filter || "none";
+    } else {
+      exprVid.style.display = "none";
+      if (exprVid.pause) exprVid.pause();
+      portrait.style.display = "";
+      portrait.style.filter = STATES[name].filter;
+    }
+  }
+
+  /* ===================== PARTICLE ENGINE ===================== */
+  let W = 0, H = 0, DPR = 1;
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+    W = wrap.clientWidth; H = wrap.clientHeight;
+    canvas.width = Math.max(1, Math.floor(W * DPR));
+    canvas.height = Math.max(1, Math.floor(H * DPR));
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  let particles = [];
+  let MAX_P = MAX_PARTICLES_START;
+  let spawnScale = 1;
+  let degraded = false;
+  let curFx = STATES.idle.fx;
+  let curRgb = STATES.idle.rgb;
+  let frameCount = 0;
+  let dtEma = 16;
+
+  function rnd(a, b) { return a + Math.random() * (b - a); }
+
+  function spawnParticle(mode) {
+    if (particles.length >= MAX_P) return;
+    const p = {
+      x: rnd(0, W),
+      y: mode === "snow" ? -6 : rnd(H * 0.35, H),
+      size: rnd(0.8, 2.4),
+      life: 0,
+      maxLife: rnd(2.5, 6),
+      phase: rnd(0, Math.PI * 2),
+      freq: rnd(0.4, 1.4),
+      amp: rnd(3, 12),
+      px: 0, py: 0,
+      vx: 0, vy: 0,
+      kind: "dot",
+    };
+    const sp = rnd(curFx.speed[0], curFx.speed[1]);
+    if (mode === "rise") { p.vy = -sp; p.vx = 0; }
+    else if (mode === "flow") { p.vx = -sp * 0.75; p.vy = sp * 0.4; p.y = rnd(0, H * 0.8); }
+    else if (mode === "chaos") { const a = rnd(0, Math.PI * 2); p.vx = Math.cos(a) * sp; p.vy = Math.sin(a) * sp; }
+    else if (mode === "snow") { p.vy = sp * 0.6; p.vx = 0; }
+    particles.push(p);
+  }
+
+  function spawnBurst() {
+    const cx = W * 0.5, cy = H * 0.28;
+    for (let i = 0; i < 70; i++) {
+      if (particles.length >= MAX_P + 60) break;
+      const a = rnd(0, Math.PI * 2);
+      const sp = rnd(30, 130);
+      particles.push({
+        x: cx, y: cy,
+        px: cx, py: cy,
+        vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
+        size: rnd(1, 3), life: 0, maxLife: rnd(1.2, 2.6),
+        phase: rnd(0, Math.PI * 2), freq: 1, amp: 4,
+        kind: "burst",
+      });
+    }
+  }
+
+  function spawnSpark() {
+    if (particles.length >= MAX_P + 20) return;
+    particles.push({
+      x: rnd(W * 0.2, W * 0.8), y: rnd(H * 0.2, H * 0.8),
+      px: 0, py: 0,
+      vx: rnd(-140, 140), vy: rnd(-160, 40),
+      size: 1.4, life: 0, maxLife: 0.3,
+      phase: 0, freq: 1, amp: 0,
+      kind: "spark",
+    });
+  }
+
+  function stepFX(dt, t) {
+    const acc = (dt / 1000);
+    if (curFx.mode !== "burst" && Math.random() < curFx.spawn * spawnScale * acc) spawnParticle(curFx.mode);
+    if (curFx.sparks && Math.random() < 2.2 * acc) spawnSpark();
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.globalCompositeOperation = "lighter";
+
+    const [r, g, b] = curRgb;
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.life += acc;
+      p.px = p.x; p.py = p.y;
+
+      if (p.kind === "burst") {
+        p.vx *= 0.955; p.vy *= 0.955; p.vy += 26 * acc;
+        p.x += p.vx * acc; p.y += p.vy * acc;
+      } else if (curFx.mode === "chaos" && p.kind === "dot") {
+        p.vx += rnd(-900, 900) * acc; p.vy += rnd(-900, 900) * acc;
+        p.vx *= 0.96; p.vy *= 0.96;
+        p.x += p.vx * acc; p.y += p.vy * acc;
+      } else {
+        p.x += p.vx * acc + Math.sin(t * p.freq + p.phase) * p.amp * acc;
+        p.y += p.vy * acc;
+      }
+
+      const lr = 1 - p.life / p.maxLife;
+      const off = p.y < -10 || p.y > H + 10 || p.x < -10 || p.x > W + 10 || lr <= 0;
+      if (off) { particles.splice(i, 1); continue; }
+
+      const alpha = Math.min(1, lr * 2) * 0.75;
+      if (p.kind === "spark") {
+        ctx.strokeStyle = `rgba(255,240,200,${alpha})`;
+        ctx.lineWidth = p.size;
+        ctx.beginPath(); ctx.moveTo(p.px, p.py); ctx.lineTo(p.x, p.y); ctx.stroke();
+      } else {
+        ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+    ctx.globalCompositeOperation = "source-over";
+  }
+
+  let rafId = 0;
+  let lastFrame = performance.now();
+  function loop(now) {
+    rafId = requestAnimationFrame(loop);
+    const dt = Math.min(64, now - lastFrame);
+    lastFrame = now;
+    if (paused) return;
+    frameCount++;
+    dtEma = dtEma * 0.95 + dt * 0.05;
+    if (frameCount % 150 === 0 && !degraded && 1000 / dtEma < 45) {
+      degraded = true;
+      MAX_P = Math.floor(MAX_P / 2);
+      spawnScale = 0.55;
+    }
+    stepFX(dt, now / 1000);
+  }
+  requestAnimationFrame(loop);
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      cancelAnimationFrame(rafId);
+    } else {
+      lastFrame = performance.now();
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(loop);
+    }
+  });
+
+  /* ===================== STATE MACHINE ===================== */
+  function setStateVisuals(name, detail) {
+    const s = STATES[name] || STATES.idle;
+    document.documentElement.style.setProperty("--aura-color", s.hex);
+    stateLabel.textContent = s.label;
+    detailLabel.textContent = detail || "";
+    wrap.classList.toggle("alive", name !== "shutdown");
+    wrap.classList.toggle("tremor", name === "error");
+    tint.style.background = s.hex;
+    tint.style.opacity = s.tintOp;
+    curFx = s.fx;
+    curRgb = s.rgb;
+    if (name === "milestone") spawnBurst();
+  }
+
+  function applyState(name, detail) {
+    const s = STATES[name] || STATES.idle;
+    if (name === current && detail === currentDetail && name !== "milestone") return;
+    current = name;
+    currentDetail = detail || "";
+    const tok = ++stateToken;
+
+    setStateVisuals(name, currentDetail);
+
+    resolveAsset(s.expr).then(asset => {
+      if (tok !== stateToken) return;
+      applyAsset(asset, name);
+    });
+
+    if (name === "milestone") {
+      flash.classList.remove("on");
+      void flash.offsetWidth;
+      flash.classList.add("on");
+      setTimeout(() => { if (tok === stateToken) applyState("working"); }, s.hold * 1000);
+    }
+  }
+
+  function handlePayload(data) {
+    hasLiveSource = true;
+    lastTs = Date.now();
+    applyState(data.state, data.detail);
+  }
+
+  window.addEventListener("message", e => {
+    const d = e.data;
+    if (d && d.type === "kai-presence") handlePayload(d.payload);
+  });
+
+  const qs = new URLSearchParams(location.search).get("src");
+  if (qs) {
+    setInterval(() => {
+      if (paused) return;
+      fetch(qs, { cache: "no-store" })
+        .then(r => r.json())
+        .then(handlePayload)
+        .catch(() => {});
+    }, 1500);
+  } else {
+    const seq = ["idle", "reading", "thinking", "working", "milestone", "speaking", "error", "shutdown"];
+    let i = 0;
+    const demo = setInterval(() => {
+      if (paused) return;
+      if (hasLiveSource) { clearInterval(demo); return; }
+      applyState(seq[i % seq.length], "prévia demo");
+      i++;
+    }, 4000);
+  }
+
+  setInterval(() => {
+    if (paused || !lastTs) return;
+    if (Date.now() - lastTs > STALE_MS && current !== "idle" && current !== "shutdown") {
+      applyState("idle", "");
+    }
+  }, 5000);
+
+  pauseBtn.addEventListener("click", () => {
+    paused = !paused;
+    document.body.classList.toggle("paused", paused);
+    pauseBtn.textContent = paused ? "▶ retomar" : "⏸ pausar";
+  });
+
+  reloadBtn.addEventListener("click", () => {
+    if (vsCodeApi) vsCodeApi.postMessage({ type: "kai-reload" });
+    else location.reload();
+  });
+
+  applyState("idle", "");
+
+  if (vsCodeApi) vsCodeApi.postMessage({ type: "ready" });
+})();
+</script>
+</body>
+</html>

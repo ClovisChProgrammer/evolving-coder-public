@@ -1,0 +1,40 @@
+# Allowlist: contaminacao de script estrangeiro (classe L19)
+#
+# USO: lido por scripts\healthcheck.ps1. Uma entrada aqui e uma OCORRENCIA
+# DELIBERADA, nao um descuido. Sem motivo, a guarda soa WARNING.
+#
+# FORMATO:  <caminho relativo a raiz do repo>  |  <motivo>
+#
+# REGRA: nunca adicionar aqui sem escrever o motivo. E nunca adicionar para
+# calar um WARNING que voce nao leu. A lista existe para distinguir
+# "conteudo estrangeiro legitimo" de "lixo lexical na escrita" - as duas coisas
+# Parecem iguais numa varredura e tem consequencias opostas.
+#
+# Formato do caminho: barra invertida, relativo a raiz do evolving-coder.
+
+# --- Artefatos do KAI que CITAM o defeito (a citacao E a evidencia) ---
+
+.learnings\L19-token-espurio-na-escrita.md | Catalogo dos proprios artefatos (开发/同样/家族). A licao E a prova; remover os caracteres esvazia a tabela e apaga a evidencia.
+
+.learnings\LEARNINGS.md | Entrada L19 espelhada no indice de aprendizados ativos. Mesma razao da acima.
+
+DIARY.md | L292 消除: uso bilingue INTENTIONAL de sessao anterior, ja adjudicado e registrado em L1296. L1428 开发: citacao do artefato que eu escrevi e corrigi na hora. Nenhum dos dois e lixo residual.
+
+.learnings\LRN-20261010-002-comparacao-modelo-cru-e-isolamento-config.md | L73 cita o glitch CJK `鞘` (U+9798) que o Space Bunny emitiu na 1a rodada da comparacao de modelos - a citacao E a evidencia do proprio achado (escorregao lexical do modelo); remover esvazia a prova.
+
+# --- Pendencia aberta, aguardando decisao do dono ---
+
+CHATS\2026-09-08_foto-local-img2img-visao-local_KAI.md | L2191 contem "рос сложите" (russo) no lugar de uma palavra portuguesa NAO RECUPERAVEL. Nao adivinhada, conforme a norma do proprio sistema: reconstruir seria inventar. Manter aqui ate o SPA Clovis decidir a palavra.
+
+# --- NAO listados aqui, porque nao sao varridos ---
+
+# - snapshots\** , archive\ , .buffer-archive\  -> historico imutavel, por ponto no tempo.
+# - scripts\knowledge-index.json , knowledge-embeddings.npz -> artefatos DERIVADOS de
+#   DIARY/LEARNINGS. Varrer os dois contaria o mesmo defeito duas vezes. A correcao
+#   vai na fonte e o indice e reconstruido por kai-retrieval.py.
+# - skills\* (exceto skills\evolving-coder\) -> skills de terceiros com conteudo em
+#   outros idiomas por desenho:
+#     research-zh\            -> skill de pesquisa em chines
+#     ...music-playlist\data\artist_genre_map.json -> nomes de artistas CJK
+#     ...minimax-xlsx\scripts\xlsx_reader.py      -> DETECTA CJK de proposito (ano)
+#     programmatic-seo\references\playbooks.md     -> exemplos de busca em chines
