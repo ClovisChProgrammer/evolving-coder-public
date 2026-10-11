@@ -3,6 +3,8 @@ node_modules/
 package.json
 package-lock.json
 bun.lock
+# vscode-kai-presence e um produto proprio (extensao VS Code) — o manifest e publicado (excecao intencional)
+!vscode-kai-presence/package.json
 
 # OS artifacts
 Thumbs.db
@@ -48,6 +50,7 @@ scripts/knowledge-index.json
 # CHATS artifacts are not ignored by git on their own; the filenames below make the gate structural.
 CHATS/*.md
 MANUAL-INTIMO*
+MANUAL*NTIMO*
 LIVRO-KAI-SALVA-VIDAS*
 backups/
 *.tomb
